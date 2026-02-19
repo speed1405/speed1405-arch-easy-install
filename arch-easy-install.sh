@@ -360,8 +360,14 @@ check_requirements() {
 
 # Main entry point
 main() {
+    # Debug mode
+    local DEBUG=1
+    
+    [[ $DEBUG -eq 1 ]] && echo "[DEBUG] Starting main function"
+    
     # Parse arguments
     parse_args "$@"
+    [[ $DEBUG -eq 1 ]] && echo "[DEBUG] Arguments parsed"
     
     # Check if running as root
     if [[ $EUID -ne 0 ]]; then
@@ -369,22 +375,27 @@ main() {
         echo "Please run: sudo bash arch-easy-install.sh"
         exit 1
     fi
+    [[ $DEBUG -eq 1 ]] && echo "[DEBUG] Root check passed"
     
     # Check terminal
     if [[ ! -t 0 ]] || [[ ! -t 1 ]]; then
         echo "Error: This script must be run in a terminal"
         exit 1
     fi
+    [[ $DEBUG -eq 1 ]] && echo "[DEBUG] Terminal check passed"
     
     # Initialize configuration
     init_config
     load_config
+    [[ $DEBUG -eq 1 ]] && echo "[DEBUG] Configuration initialized"
     
     # Setup dialog (will install if needed)
+    echo "Setting up dialog interface..."
     if ! setup_dialog; then
-        echo "Error: Failed to setup dialog interface"
-        echo "Trying to continue with text-based interface..."
+        echo "Warning: Failed to setup dialog interface"
+        echo "Falling back to text-based interface..."
     fi
+    [[ $DEBUG -eq 1 ]] && echo "[DEBUG] Dialog setup complete (DIALOG_CMD=$DIALOG_CMD)"
     
     # Check for jq (optional, for config management)
     if ! command -v jq &>/dev/null; then
@@ -394,6 +405,7 @@ main() {
     
     # Initialize logging
     init_logging
+    [[ $DEBUG -eq 1 ]] && echo "[DEBUG] Logging initialized"
     
     log_info "============================================="
     log_info "Arch Linux Easy Installer v2.0 started"
@@ -406,8 +418,15 @@ main() {
     fi
     log_info "============================================="
     
+    [[ $DEBUG -eq 1 ]] && echo "[DEBUG] About to show welcome screen"
+    
     # Show welcome screen
-    dialog_safe --msgbox "Welcome to Arch Linux Easy Installer v2.0!\n\nThis script provides a guided, user-friendly installation for Arch Linux.\n\nNew features in v2.0:\n• Disk encryption support\n• Resume interrupted installations\n• Configuration save/load\n• Dry-run mode\n• Better hardware detection\n• AUR helper installation\n\n⚠ WARNING: This will modify your disk partitions.\nMake sure you have backed up important data.\n\nPress OK to continue." 18 65
+    if ! dialog_safe --msgbox "Welcome to Arch Linux Easy Installer v2.0!\n\nThis script provides a guided, user-friendly installation for Arch Linux.\n\nNew features in v2.0:\n• Disk encryption support\n• Resume interrupted installations\n• Configuration save/load\n• Dry-run mode\n• Better hardware detection\n• AUR helper installation\n\n⚠ WARNING: This will modify your disk partitions.\nMake sure you have backed up important data.\n\nPress OK to continue." 18 65; then
+        echo "Error: Failed to display welcome screen"
+        exit 1
+    fi
+    
+    [[ $DEBUG -eq 1 ]] && echo "[DEBUG] Welcome screen displayed, starting main menu"
     
     # Start main menu
     main_menu

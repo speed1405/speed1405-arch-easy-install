@@ -22,13 +22,20 @@ KEYBOARD=""
 DESKTOP_ENV=""
 
 # Dialog command - will be set after checking availability
-DIALOG_CMD=""
+export DIALOG_CMD=""
 
 # Initialize logging
 init_logging() {
-    touch "$LOG_FILE"
-    exec 1> >(tee -a "$LOG_FILE")
-    exec 2> >(tee -a "$LOG_FILE" >&2)
+    # Create log directory if it doesn't exist
+    local log_dir=$(dirname "$LOG_FILE")
+    if [[ ! -d "$log_dir" ]]; then
+        mkdir -p "$log_dir" 2>/dev/null || {
+            # Fallback to /tmp if we can't create the log directory
+            LOG_FILE="/tmp/arch-easy-install.log"
+        }
+    fi
+    touch "$LOG_FILE" 2>/dev/null || true
+    # Don't redirect stdout/stderr as it breaks dialog
 }
 
 # Check and setup dialog
@@ -300,29 +307,48 @@ dialog_safe() {
         esac
     fi
     
-    # Use dialog/whiptail
-    result=$(dialog_wrapper "$@" 2>/dev/null)
-    exit_code=$?
-    
-    if [[ $exit_code -eq 0 ]]; then
-        echo "$result"
-        return 0
-    else
-        return 1
-    fi
+    # Use dialog/whiptail directly without capturing output for simple dialogs
+    case $1 in
+        --msgbox|--yesno|--infobox|--gauge)
+            # These don't need output capture
+            dialog_wrapper "$@" 2>/dev/null
+            return $?
+            ;;
+        *)
+            # These need output capture
+            result=$(dialog_wrapper "$@" 2>/dev/null)
+            exit_code=$?
+            if [[ $exit_code -eq 0 ]]; then
+                echo "$result"
+            fi
+            return $exit_code
+            ;;
+    esac
 }
 
 # Logging functions
 log_info() {
-    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+    local msg="[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $1"
+    echo "$msg"
+    if [[ -w "$LOG_FILE" ]] || [[ -w $(dirname "$LOG_FILE") ]]; then
+        echo "$msg" >> "$LOG_FILE" 2>/dev/null || true
+    fi
 }
 
 log_warn() {
-    echo "[WARN] $(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+    local msg="[WARN] $(date '+%Y-%m-%d %H:%M:%S') - $1"
+    echo "$msg"
+    if [[ -w "$LOG_FILE" ]] || [[ -w $(dirname "$LOG_FILE") ]]; then
+        echo "$msg" >> "$LOG_FILE" 2>/dev/null || true
+    fi
 }
 
 log_error() {
-    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+    local msg="[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $1"
+    echo "$msg" >&2
+    if [[ -w "$LOG_FILE" ]] || [[ -w $(dirname "$LOG_FILE") ]]; then
+        echo "$msg" >> "$LOG_FILE" 2>/dev/null || true
+    fi
 }
 
 # Check boot mode (UEFI or BIOS)
