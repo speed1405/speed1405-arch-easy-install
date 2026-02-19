@@ -26,7 +26,7 @@ partition_disk() {
     
     # Check disk space
     if ! check_disk_space_available "$INSTALL_DISK" 20480; then
-        dialog --msgbox "Insufficient disk space.\n\nMinimum 20GB required." 8 50
+        dialog_safe --msgbox "Insufficient disk space.\n\nMinimum 20GB required." 8 50
         return 1
     fi
     
@@ -54,11 +54,11 @@ select_disk() {
     done < <(get_available_disks)
     
     if [[ ${#menu_items[@]} -eq 0 ]]; then
-        dialog --msgbox "Error: No suitable disks found." 8 40
+        dialog_safe --msgbox "Error: No suitable disks found." 8 40
         return 1
     fi
     
-    INSTALL_DISK=$(dialog --clear --title "Select Disk" \
+    INSTALL_DISK=$(dialog_safe --clear --title "Select Disk" \
         --menu "Choose the disk to install Arch Linux on:\n\nWARNING: All data will be erased!" 20 70 10 \
         "${menu_items[@]}" \
         3>&1 1>&2 2>&3)
@@ -80,7 +80,7 @@ select_disk() {
     disk_size=$(lsblk -d -n -o SIZE "$INSTALL_DISK")
     
     # Final confirmation
-    if ! dialog --yesno "You have selected:\n\nDevice: $INSTALL_DISK\nSize: $disk_size\n\n⚠ WARNING: This will ERASE ALL DATA on this disk!\n\nAre you absolutely sure you want to continue?" 12 60; then
+    if ! dialog_safe --yesno "You have selected:\n\nDevice: $INSTALL_DISK\nSize: $disk_size\n\n⚠ WARNING: This will ERASE ALL DATA on this disk!\n\nAre you absolutely sure you want to continue?" 12 60; then
         INSTALL_DISK=""
         return 1
     fi
@@ -91,7 +91,7 @@ select_disk() {
 # Select partitioning method
 select_partitioning_method() {
     local method
-    method=$(dialog --clear --title "Partitioning Method" \
+    method=$(dialog_safe --clear --title "Partitioning Method" \
         --menu "Choose how to partition the disk:" 15 60 3 \
         1 "Automatic - Erase entire disk (Recommended)" \
         2 "Manual - Use cfdisk (Advanced)" \
@@ -123,7 +123,7 @@ automatic_partitioning() {
     
     # Swap size with validation
     while true; do
-        swap_size=$(dialog --clear --title "Swap Size" \
+        swap_size=$(dialog_safe --clear --title "Swap Size" \
             --inputbox "Enter swap size in MB:\n(Recommended: 2048-8192 MB for systems with 4-16GB RAM)\n\nUse 0 to disable swap." 12 50 "2048" \
             3>&1 1>&2 2>&3) || return 1
         
@@ -131,14 +131,14 @@ automatic_partitioning() {
         if validate_integer "$swap_size" 0 131072 "Swap size"; then
             break
         else
-            dialog --msgbox "Invalid swap size. Please enter a number between 0 and 131072 (128GB)." 8 60
+            dialog_safe --msgbox "Invalid swap size. Please enter a number between 0 and 131072 (128GB)." 8 60
         fi
     done
     
     set_config '.disk.swap_size' "$swap_size"
     
     # Separate /home partition
-    if dialog --yesno "Create a separate /home partition?\n\nYes: Better for system reinstallation, keeps user data separate\nNo: All space goes to root (/), simpler setup" 11 65; then
+    if dialog_safe --yesno "Create a separate /home partition?\n\nYes: Better for system reinstallation, keeps user data separate\nNo: All space goes to root (/), simpler setup" 11 65; then
         separate_home="yes"
         set_config '.disk.separate_home' 'true'
     else
@@ -147,7 +147,7 @@ automatic_partitioning() {
     fi
     
     # Filesystem
-    filesystem=$(dialog --clear --title "Filesystem" \
+    filesystem=$(dialog_safe --clear --title "Filesystem" \
         --menu "Choose a filesystem:\n\nRecommendation: ext4 for beginners, btrfs for advanced users" 13 65 3 \
         "ext4" "ext4 - Reliable, well-tested (Recommended)" \
         "btrfs" "btrfs - Modern, snapshots, compression" \
@@ -198,7 +198,7 @@ automatic_partitioning() {
     summary+="\n⚠ This will DESTROY ALL DATA on $INSTALL_DISK!"
     summary+="\n\nProceed with this layout?"
     
-    if ! dialog --yesno "$summary" 18 65; then
+    if ! dialog_safe --yesno "$summary" 18 65; then
         return 1
     fi
     
@@ -226,14 +226,14 @@ apply_automatic_partitioning() {
     
     log_info "Applying automatic partitioning to $INSTALL_DISK"
     
-    dialog --infobox "Creating partitions..." 3 40
+    dialog_safe --infobox "Creating partitions..." 3 40
     
     # Unmount if mounted
     swapoff -a 2>/dev/null || true
     umount -R /mnt 2>/dev/null || true
     
     # Wipe disk
-    dialog --infobox "Wiping disk signatures..." 3 40
+    dialog_safe --infobox "Wiping disk signatures..." 3 40
     wipefs -af "$INSTALL_DISK" &>/dev/null
     sgdisk -Zo "$INSTALL_DISK" &>/dev/null || true
     
@@ -252,7 +252,7 @@ apply_automatic_partitioning() {
         fi
     fi
     
-    dialog --msgbox "Partitions created successfully!" 6 40
+    dialog_safe --msgbox "Partitions created successfully!" 6 40
     
     return 0
 }
@@ -488,13 +488,13 @@ create_bios_partitions() {
 manual_partitioning() {
     log_info "Starting manual partitioning with cfdisk..."
     
-    dialog --msgbox "Manual Partitioning Instructions:\n\n1. Create partitions using cfdisk\n2. At minimum, create:\n   - Root partition (/)\n   - Boot partition (/boot or ESP for UEFI)\n3. Optional: swap, /home\n4. Write changes and quit\n\nPress OK to launch cfdisk." 15 60
+    dialog_safe --msgbox "Manual Partitioning Instructions:\n\n1. Create partitions using cfdisk\n2. At minimum, create:\n   - Root partition (/)\n   - Boot partition (/boot or ESP for UEFI)\n3. Optional: swap, /home\n4. Write changes and quit\n\nPress OK to launch cfdisk." 15 60
     
     clear
     cfdisk "$INSTALL_DISK"
     
     # Ask user to specify mount points
-    dialog --msgbox "Now you need to specify which partitions to use.\n\nPress OK to continue." 8 50
+    dialog_safe --msgbox "Now you need to specify which partitions to use.\n\nPress OK to continue." 8 50
     
     # Get disk name
     local disk_name
@@ -505,13 +505,13 @@ manual_partitioning() {
     partitions=$(lsblk -n -o NAME "$INSTALL_DISK" | grep -E "^${disk_name}[0-9]+$" || true)
     
     if [[ -z "$partitions" ]]; then
-        dialog --msgbox "No partitions found. Please create partitions first." 8 50
+        dialog_safe --msgbox "No partitions found. Please create partitions first." 8 50
         return 1
     fi
     
     # Select root partition
     local root_part
-    root_part=$(dialog --clear --title "Select Root Partition" \
+    root_part=$(dialog_safe --clear --title "Select Root Partition" \
         --menu "Choose the partition for root (/):" 20 60 10 \
         $(lsblk -n -o NAME,SIZE "$INSTALL_DISK" | grep -E "^${disk_name}[0-9]+" | awk '{print "/dev/"$1, $2}') \
         3>&1 1>&2 2>&3) || return 1
@@ -523,7 +523,7 @@ manual_partitioning() {
     
     # Select filesystem for root
     local root_fs
-    root_fs=$(dialog --clear --title "Root Filesystem" \
+    root_fs=$(dialog_safe --clear --title "Root Filesystem" \
         --menu "Choose filesystem for root:" 10 50 3 \
         "ext4" "ext4 - Standard filesystem" \
         "btrfs" "btrfs - Advanced features" \
@@ -535,14 +535,14 @@ manual_partitioning() {
     fi
     
     # Format and mount root
-    dialog --infobox "Formatting root partition..." 3 40
+    dialog_safe --infobox "Formatting root partition..." 3 40
     mkfs.$root_fs -F "$root_part"
     mount "$root_part" /mnt
     
     # Ask for other partitions
     if [[ "$BOOT_MODE" == "UEFI" ]]; then
         local efi_part
-        efi_part=$(dialog --clear --title "Select EFI Partition" \
+        efi_part=$(dialog_safe --clear --title "Select EFI Partition" \
             --menu "Choose the EFI System Partition:" 20 60 10 \
             $(lsblk -n -o NAME,SIZE "$INSTALL_DISK" | grep -E "^${disk_name}[0-9]+" | awk '{print "/dev/"$1, $2}') \
             3>&1 1>&2 2>&3)
@@ -555,9 +555,9 @@ manual_partitioning() {
     fi
     
     # Ask for swap
-    if dialog --yesno "Do you have a swap partition?" 7 40; then
+    if dialog_safe --yesno "Do you have a swap partition?" 7 40; then
         local swap_part
-        swap_part=$(dialog --clear --title "Select Swap Partition" \
+        swap_part=$(dialog_safe --clear --title "Select Swap Partition" \
             --menu "Choose the swap partition:" 20 60 10 \
             $(lsblk -n -o NAME,SIZE "$INSTALL_DISK" | grep -E "^${disk_name}[0-9]+" | awk '{print "/dev/"$1, $2}') \
             3>&1 1>&2 2>&3)
@@ -569,16 +569,16 @@ manual_partitioning() {
     fi
     
     # Ask for home
-    if dialog --yesno "Do you have a separate /home partition?" 7 40; then
+    if dialog_safe --yesno "Do you have a separate /home partition?" 7 40; then
         local home_part
-        home_part=$(dialog --clear --title "Select Home Partition" \
+        home_part=$(dialog_safe --clear --title "Select Home Partition" \
             --menu "Choose the home partition:" 20 60 10 \
             $(lsblk -n -o NAME,SIZE "$INSTALL_DISK" | grep -E "^${disk_name}[0-9]+" | awk '{print "/dev/"$1, $2}') \
             3>&1 1>&2 2>&3)
         
         if [[ -n "$home_part" ]]; then
             local home_fs
-            home_fs=$(dialog --clear --title "Home Filesystem" \
+            home_fs=$(dialog_safe --clear --title "Home Filesystem" \
                 --menu "Choose filesystem for home:" 10 50 3 \
                 "ext4" "ext4" \
                 "btrfs" "btrfs" \

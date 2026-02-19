@@ -99,7 +99,7 @@ install_i3_config() {
         ttf-jetbrains-mono
     
     # Download a nice wallpaper
-    dialog --infobox "Downloading wallpaper..." 3 40
+    dialog_safe --infobox "Downloading wallpaper..." 3 40
     curl -L -o /mnt/home/$USERNAME/.config/wallpaper.jpg \
         "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1920&q=80" 2>/dev/null || \
         cp /mnt/usr/share/backgrounds/default.png /mnt/home/$USERNAME/.config/wallpaper.jpg 2>/dev/null || true
@@ -182,7 +182,7 @@ install_openbox_config() {
     arch-chroot /mnt obmenu-generator -p -i 2>/dev/null || true
     
     # Download wallpaper
-    dialog --infobox "Downloading wallpaper..." 3 40
+    dialog_safe --infobox "Downloading wallpaper..." 3 40
     curl -L -o /mnt/home/$USERNAME/.config/wallpaper.jpg \
         "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1920&q=80" 2>/dev/null || \
         cp /mnt/usr/share/backgrounds/default.png /mnt/home/$USERNAME/.config/wallpaper.jpg 2>/dev/null || true
@@ -944,16 +944,16 @@ show_keybinding_cheatsheet() {
     
     case $wm in
         "i3")
-            dialog --msgbox "i3 Keybindings Cheat Sheet:\n\nMod = Super/Windows key\n\nMod+Enter: Terminal\nMod+D: Application launcher\nMod+Shift+Q: Close window\nMod+Shift+E: Exit menu\nMod+Shift+R: Reload config\nMod+1-0: Switch workspace\nMod+Shift+1-0: Move to workspace\nMod+H/J/K/L: Navigate windows\nMod+Shift+H/J/K/L: Move windows\nMod+F: Fullscreen\nMod+V: Split vertical\nMod+Shift+V: Split horizontal\nMod+S: Stacking layout\nMod+W: Tabbed layout\nMod+E: Toggle split\nMod+R: Resize mode\nMod+Shift+X: Lock screen\n\nYour config is at: ~/.config/i3/config" 25 60
+            dialog_safe --msgbox "i3 Keybindings Cheat Sheet:\n\nMod = Super/Windows key\n\nMod+Enter: Terminal\nMod+D: Application launcher\nMod+Shift+Q: Close window\nMod+Shift+E: Exit menu\nMod+Shift+R: Reload config\nMod+1-0: Switch workspace\nMod+Shift+1-0: Move to workspace\nMod+H/J/K/L: Navigate windows\nMod+Shift+H/J/K/L: Move windows\nMod+F: Fullscreen\nMod+V: Split vertical\nMod+Shift+V: Split horizontal\nMod+S: Stacking layout\nMod+W: Tabbed layout\nMod+E: Toggle split\nMod+R: Resize mode\nMod+Shift+X: Lock screen\n\nYour config is at: ~/.config/i3/config" 25 60
             ;;
         "openbox")
-            dialog --msgbox "OpenBox Keybindings Cheat Sheet:\n\nAlt+F1: Menu\nAlt+F2: Run dialog\nAlt+F3: Application search\nAlt+Tab: Switch windows\nAlt+F4: Close window\nAlt+F5: Minimize\nAlt+F6: Maximize\nAlt+F11: Fullscreen\nAlt+Escape: Exit menu\nCtrl+Alt+T: Terminal\nSuper+E: File manager\nSuper+L: Lock screen\nPrint: Screenshot\n\nRight-click desktop for menu\n\nYour config is at: ~/.config/openbox/rc.xml" 25 60
+            dialog_safe --msgbox "OpenBox Keybindings Cheat Sheet:\n\nAlt+F1: Menu\nAlt+F2: Run dialog\nAlt+F3: Application search\nAlt+Tab: Switch windows\nAlt+F4: Close window\nAlt+F5: Minimize\nAlt+F6: Maximize\nAlt+F11: Fullscreen\nAlt+Escape: Exit menu\nCtrl+Alt+T: Terminal\nSuper+E: File manager\nSuper+L: Lock screen\nPrint: Screenshot\n\nRight-click desktop for menu\n\nYour config is at: ~/.config/openbox/rc.xml" 25 60
             ;;
         "awesome")
-            dialog --msgbox "AwesomeWM Keybindings Cheat Sheet:\n\nMod = Super/Windows key\n\nMod+Enter: Terminal\nMod+R: Run prompt\nMod+X: Lua prompt\nMod+P: Menubar\nMod+W: Main menu\nMod+J/K: Focus next/previous\nMod+Shift+J/K: Swap windows\nMod+H/L: Resize master\nMod+Space: Next layout\nMod+Shift+Space: Previous layout\nMod+Shift+Q: Close window\nMod+Ctrl+R: Restart Awesome\nMod+Shift+Q: Quit Awesome\nMod+1-9: Switch tag\nMod+Shift+1-9: Move to tag\n\nYour config is at: ~/.config/awesome/rc.lua" 25 60
+            dialog_safe --msgbox "AwesomeWM Keybindings Cheat Sheet:\n\nMod = Super/Windows key\n\nMod+Enter: Terminal\nMod+R: Run prompt\nMod+X: Lua prompt\nMod+P: Menubar\nMod+W: Main menu\nMod+J/K: Focus next/previous\nMod+Shift+J/K: Swap windows\nMod+H/L: Resize master\nMod+Space: Next layout\nMod+Shift+Space: Previous layout\nMod+Shift+Q: Close window\nMod+Ctrl+R: Restart Awesome\nMod+Shift+Q: Quit Awesome\nMod+1-9: Switch tag\nMod+Shift+1-9: Move to tag\n\nYour config is at: ~/.config/awesome/rc.lua" 25 60
             ;;
         "bspwm")
-            dialog --msgbox "BSPWM Keybindings Cheat Sheet:\n\nSuper = Mod key\n\nSuper+Enter: Terminal\nSuper+D: Application launcher\nSuper+Space: Run dialog\nSuper+Q: Close window\nSuper+Shift+Q: Kill window\nSuper+T: Tiled\nSuper+Shift+T: Floating\nSuper+F: Fullscreen\nSuper+H/J/K/L: Focus direction\nSuper+Shift+H/J/K/L: Move direction\nSuper+1-0: Desktop\nSuper+Shift+1-0: Move to desktop\nSuper+Shift+E: Quit BSPWM\nSuper+Shift+R: Reload BSPWM\nSuper+Escape: Reload sxhkd\nSuper+L: Lock screen\nPrint: Screenshot\n\nYour config is at: ~/.config/bspwm/bspwmrc" 25 60
+            dialog_safe --msgbox "BSPWM Keybindings Cheat Sheet:\n\nSuper = Mod key\n\nSuper+Enter: Terminal\nSuper+D: Application launcher\nSuper+Space: Run dialog\nSuper+Q: Close window\nSuper+Shift+Q: Kill window\nSuper+T: Tiled\nSuper+Shift+T: Floating\nSuper+F: Fullscreen\nSuper+H/J/K/L: Focus direction\nSuper+Shift+H/J/K/L: Move direction\nSuper+1-0: Desktop\nSuper+Shift+1-0: Move to desktop\nSuper+Shift+E: Quit BSPWM\nSuper+Shift+R: Reload BSPWM\nSuper+Escape: Reload sxhkd\nSuper+L: Lock screen\nPrint: Screenshot\n\nYour config is at: ~/.config/bspwm/bspwmrc" 25 60
             ;;
     esac
 }

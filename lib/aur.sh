@@ -5,13 +5,13 @@
 
 # Install yay AUR helper
 install_aur_helper() {
-    if ! dialog --yesno "Would you like to install an AUR helper (yay)?\n\nThe AUR (Arch User Repository) contains community packages.\nyay makes it easy to install software from the AUR.\n\nRecommended for most users." 12 60; then
+    if ! dialog_safe --yesno "Would you like to install an AUR helper (yay)?\n\nThe AUR (Arch User Repository) contains community packages.\nyay makes it easy to install software from the AUR.\n\nRecommended for most users." 12 60; then
         return 0
     fi
     
     log_info "Installing yay AUR helper..."
     
-    dialog --infobox "Installing yay AUR helper...\n\nThis will compile yay from source." 6 60
+    dialog_safe --infobox "Installing yay AUR helper...\n\nThis will compile yay from source." 6 60
     
     # Install dependencies
     arch-chroot /mnt pacman -S --noconfirm --needed base-devel git
@@ -99,7 +99,7 @@ EOF
     
     log_info "yay AUR helper installed successfully"
     
-    dialog --msgbox "✓ yay AUR helper installed successfully!\n\nYou can now install AUR packages with:\nyay -S package-name" 10 60
+    dialog_safe --msgbox "✓ yay AUR helper installed successfully!\n\nYou can now install AUR packages with:\nyay -S package-name" 10 60
     
     return 0
 }
@@ -108,7 +108,7 @@ EOF
 install_paru() {
     log_info "Installing paru AUR helper..."
     
-    dialog --infobox "Installing paru AUR helper..." 3 40
+    dialog_safe --infobox "Installing paru AUR helper..." 3 40
     
     # Install dependencies
     arch-chroot /mnt pacman -S --noconfirm --needed base-devel git
@@ -149,7 +149,7 @@ install_aur_packages() {
     
     log_info "Installing AUR packages: ${aur_packages[*]}"
     
-    dialog --infobox "Installing AUR packages...\n\nThis may take a while." 5 60
+    dialog_safe --infobox "Installing AUR packages...\n\nThis may take a while." 5 60
     
     local helper="yay"
     if ! command -v yay &>/dev/null; then
@@ -167,7 +167,7 @@ offer_popular_aur_packages() {
     local packages_selected=()
     
     local choices
-    choices=$(dialog --clear --title "Popular AUR Packages" \
+    choices=$(dialog_safe --clear --title "Popular AUR Packages" \
         --checklist "Select packages to install:\n\nUse SPACE to select, ENTER to confirm" 20 70 15 \
         "google-chrome" "Google Chrome browser" off \
         "visual-studio-code-bin" "VS Code editor" off \

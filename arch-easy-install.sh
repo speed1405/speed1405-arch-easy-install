@@ -102,7 +102,7 @@ EOF
 main_menu() {
     while true; do
         local choice
-        choice=$(dialog --clear --title "Arch Linux Easy Installer v2.0" \
+        choice=$(dialog_safe --clear --title "Arch Linux Easy Installer v2.0" \
             --menu "Welcome! This script will guide you through installing Arch Linux.\n\nWhat would you like to do?" 18 65 8 \
             1 "Start Installation" \
             2 "System Requirements Check" \
@@ -111,8 +111,7 @@ main_menu() {
             5 "Load Configuration" \
             6 "Save Configuration" \
             7 "Help / Documentation" \
-            8 "Exit" \
-            3>&1 1>&2 2>&3)
+            8 "Exit")
 
         case $choice in
             1) start_installation ;;
@@ -131,35 +130,33 @@ main_menu() {
 # Load external configuration
 load_external_config() {
     local config_file
-    config_file=$(dialog --clear --title "Load Configuration" \
-        --fselect "$HOME/" 20 70 \
-        3>&1 1>&2 2>&3) || return 1
+    config_file=$(dialog_safe --clear --title "Load Configuration" \
+        --fselect "$HOME/" 20 70) || return 1
     
     if [[ -f "$config_file" ]]; then
         if cp "$config_file" "$CONFIG_FILE"; then
             load_config
-            dialog --msgbox "✓ Configuration loaded successfully!" 6 40
+            dialog_safe --msgbox "✓ Configuration loaded successfully!" 6 40
             print_config_summary > /tmp/config-summary.txt
-            dialog --textbox /tmp/config-summary.txt 20 70
+            dialog_safe --textbox /tmp/config-summary.txt 20 70
         else
-            dialog --msgbox "✗ Failed to load configuration file." 6 40
+            dialog_safe --msgbox "✗ Failed to load configuration file." 6 40
         fi
     else
-        dialog --msgbox "Configuration file not found." 6 40
+        dialog_safe --msgbox "Configuration file not found." 6 40
     fi
 }
 
 # Save configuration to external file
 save_external_config() {
     local config_file
-    config_file=$(dialog --clear --title "Save Configuration" \
-        --inputbox "Enter filename to save configuration:" 10 50 "$HOME/arch-install-config.json" \
-        3>&1 1>&2 2>&3) || return 1
+    config_file=$(dialog_safe --clear --title "Save Configuration" \
+        --inputbox "Enter filename to save configuration:" 10 50 "$HOME/arch-install-config.json") || return 1
     
     if cp "$CONFIG_FILE" "$config_file"; then
-        dialog --msgbox "✓ Configuration saved to:\n$config_file" 7 60
+        dialog_safe --msgbox "✓ Configuration saved to:\n$config_file" 7 60
     else
-        dialog --msgbox "✗ Failed to save configuration." 6 40
+        dialog_safe --msgbox "✗ Failed to save configuration." 6 40
     fi
 }
 
@@ -188,7 +185,7 @@ start_installation() {
     # Confirm before starting
     if [[ $start_phase -eq 0 ]]; then
         print_config_summary > /tmp/config-summary.txt
-        if ! dialog --yesno "$(cat /tmp/config-summary.txt)\n\n⚠ WARNING: This will modify your disk!\n\nDo you want to proceed with the installation?" 25 70; then
+        if ! dialog_safe --yesno "$(cat /tmp/config-summary.txt)\n\n⚠ WARNING: This will modify your disk!\n\nDo you want to proceed with the installation?" 25 70; then
             return 0
         fi
         
@@ -229,13 +226,13 @@ start_installation() {
                 ;;
             "desktop_installation")
                 if [[ "$(get_config '.desktop.install')" == "true" ]] || \
-                   dialog --yesno "Would you like to install a desktop environment?" 8 50; then
+                   dialog_safe --yesno "Would you like to install a desktop environment?" 8 50; then
                     set_config '.desktop.install' 'true'
                     install_desktop || handle_phase_error "$phase_name"
                 fi
                 ;;
             "bundle_installation")
-                if dialog --yesno "Would you like to install software bundles?\n\nBundles are curated collections of software for specific use cases like:\n• Gaming\n• Development\n• Productivity\n• Multimedia\n• And more!" 12 60; then
+                if dialog_safe --yesno "Would you like to install software bundles?\n\nBundles are curated collections of software for specific use cases like:\n• Gaming\n• Development\n• Productivity\n• Multimedia\n• And more!" 12 60; then
                     select_bundles || log_warn "Bundle installation had errors"
                 fi
                 ;;
@@ -258,7 +255,7 @@ handle_phase_error() {
     log_error "Phase failed: $phase"
     save_state "$phase" "failed"
     
-    dialog --msgbox "Installation failed during phase: $phase\n\nCheck the log file for details:\n$LOG_FILE\n\nYou can resume the installation later with:\nsudo bash arch-easy-install.sh --resume" 15 60
+    dialog_safe --msgbox "Installation failed during phase: $phase\n\nCheck the log file for details:\n$LOG_FILE\n\nYou can resume the installation later with:\nsudo bash arch-easy-install.sh --resume" 15 60
     
     return 1
 }
@@ -279,16 +276,16 @@ show_completion_dialog() {
     
     message+="\nThank you for using Arch Linux Easy Installer!"
     
-    dialog --msgbox "$message" 15 60
+    dialog_safe --msgbox "$message" 15 60
     
     # Final configuration export
     export_config_to_chroot
     
     # Ask to reboot
-    if dialog --yesno "Would you like to reboot now?" 7 40; then
+    if dialog_safe --yesno "Would you like to reboot now?" 7 40; then
         cleanup_and_reboot
     else
-        dialog --msgbox "You can reboot later by running:\nreboot\n\nThe installation is complete." 8 50
+        dialog_safe --msgbox "You can reboot later by running:\nreboot\n\nThe installation is complete." 8 50
     fi
 }
 
@@ -317,13 +314,13 @@ pre_installation() {
     
     # Run full preflight checks
     if ! run_preflight_checks; then
-        if ! dialog --yesno "Some pre-flight checks failed.\n\nDo you want to continue anyway?" 8 50; then
+        if ! dialog_safe --yesno "Some pre-flight checks failed.\n\nDo you want to continue anyway?" 8 50; then
             return 1
         fi
     fi
     
     # Update keyring
-    dialog --infobox "Synchronizing package database and keyring..." 3 50
+    dialog_safe --infobox "Synchronizing package database and keyring..." 3 50
     pacman -Sy --noconfirm archlinux-keyring &>/dev/null || true
     
     # Check for encryption
@@ -337,7 +334,7 @@ pre_installation() {
 
 # Show help
 show_help() {
-    dialog --msgbox "Arch Linux Easy Installer v2.0 Help\n\nThis installer provides a guided setup for Arch Linux with:\n\n✓ Automatic disk partitioning\n✓ Multiple desktop environments\n✓ Disk encryption (LUKS)\n✓ Automatic mirror selection\n✓ Hardware detection\n✓ AUR helper installation\n✓ Configuration save/load\n✓ Resume interrupted installations\n\nKeyboard Shortcuts:\n- TAB: Move between buttons\n- SPACE: Select/Deselect\n- ENTER: Confirm\n- ESC: Cancel/Go back\n\nFor detailed documentation:\nhttps://wiki.archlinux.org\n\nReport issues at:\nhttps://github.com/yourusername/arch-easy-install" 25 70
+    dialog_safe --msgbox "Arch Linux Easy Installer v2.0 Help\n\nThis installer provides a guided setup for Arch Linux with:\n\n✓ Automatic disk partitioning\n✓ Multiple desktop environments\n✓ Disk encryption (LUKS)\n✓ Automatic mirror selection\n✓ Hardware detection\n✓ AUR helper installation\n✓ Configuration save/load\n✓ Resume interrupted installations\n\nKeyboard Shortcuts:\n- TAB: Move between buttons\n- SPACE: Select/Deselect\n- ENTER: Confirm\n- ESC: Cancel/Go back\n\nFor detailed documentation:\nhttps://wiki.archlinux.org\n\nReport issues at:\nhttps://github.com/yourusername/arch-easy-install" 25 70
 }
 
 # Check system requirements
@@ -358,7 +355,7 @@ check_requirements() {
     info+="- Internet connection\n"
     info+="- x86_64 architecture"
     
-    dialog --msgbox "$info" 20 60
+    dialog_safe --msgbox "$info" 20 60
 }
 
 # Main entry point
@@ -373,14 +370,20 @@ main() {
         exit 1
     fi
     
+    # Check terminal
+    if [[ ! -t 0 ]] || [[ ! -t 1 ]]; then
+        echo "Error: This script must be run in a terminal"
+        exit 1
+    fi
+    
     # Initialize configuration
     init_config
     load_config
     
-    # Check for dialog
-    if ! command -v dialog &>/dev/null; then
-        echo "Installing dialog..."
-        pacman -Sy --noconfirm dialog &>/dev/null
+    # Setup dialog (will install if needed)
+    if ! setup_dialog; then
+        echo "Error: Failed to setup dialog interface"
+        echo "Trying to continue with text-based interface..."
     fi
     
     # Check for jq (optional, for config management)
@@ -396,10 +399,15 @@ main() {
     log_info "Arch Linux Easy Installer v2.0 started"
     log_info "Working directory: $SCRIPT_DIR"
     log_info "Log file: $LOG_FILE"
+    if [[ -n "$DIALOG_CMD" ]]; then
+        log_info "Using: $DIALOG_CMD"
+    else
+        log_info "Using: text-based interface"
+    fi
     log_info "============================================="
     
     # Show welcome screen
-    dialog --msgbox "Welcome to Arch Linux Easy Installer v2.0!\n\nThis script provides a guided, user-friendly installation for Arch Linux.\n\nNew features in v2.0:\n• Disk encryption support\n• Resume interrupted installations\n• Configuration save/load\n• Dry-run mode\n• Better hardware detection\n• AUR helper installation\n\n⚠ WARNING: This will modify your disk partitions.\nMake sure you have backed up important data.\n\nPress OK to continue." 18 65
+    dialog_safe --msgbox "Welcome to Arch Linux Easy Installer v2.0!\n\nThis script provides a guided, user-friendly installation for Arch Linux.\n\nNew features in v2.0:\n• Disk encryption support\n• Resume interrupted installations\n• Configuration save/load\n• Dry-run mode\n• Better hardware detection\n• AUR helper installation\n\n⚠ WARNING: This will modify your disk partitions.\nMake sure you have backed up important data.\n\nPress OK to continue." 18 65
     
     # Start main menu
     main_menu

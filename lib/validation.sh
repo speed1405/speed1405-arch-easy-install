@@ -198,7 +198,7 @@ confirm_dangerous_operation() {
     local confirm_text=${2:-"CONFIRM"}
     
     local user_input
-    user_input=$(dialog --clear --title "⚠ DANGEROUS OPERATION" \
+    user_input=$(dialog_safe --clear --title "⚠ DANGEROUS OPERATION" \
         --inputbox "${message}\n\nType '${confirm_text}' to proceed:" 12 60 \
         3>&1 1>&2 2>&3)
     

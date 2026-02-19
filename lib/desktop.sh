@@ -47,7 +47,7 @@ install_desktop() {
 
 # Select desktop environment
 select_desktop_environment() {
-    DESKTOP_ENV=$(dialog --clear --title "Desktop Environment / Window Manager" \
+    DESKTOP_ENV=$(dialog_safe --clear --title "Desktop Environment / Window Manager" \
         --menu "Choose your desktop environment or window manager:\n\nDesktop Environments:" 30 75 25 \
         "gnome" "GNOME - Modern, user-friendly (Recommended for beginners)" \
         "kde" "KDE Plasma - Highly customizable, Windows-like" \
@@ -87,7 +87,7 @@ select_desktop_environment() {
 install_gnome() {
     log_info "Installing GNOME..."
     
-    dialog --infobox "Installing GNOME desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing GNOME desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         gnome \
@@ -103,7 +103,7 @@ install_gnome() {
 install_kde() {
     log_info "Installing KDE Plasma..."
     
-    dialog --infobox "Installing KDE Plasma desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing KDE Plasma desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         plasma \
@@ -119,7 +119,7 @@ install_kde() {
 install_xfce() {
     log_info "Installing XFCE..."
     
-    dialog --infobox "Installing XFCE desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing XFCE desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         xfce4 \
@@ -136,7 +136,7 @@ install_xfce() {
 install_cinnamon() {
     log_info "Installing Cinnamon..."
     
-    dialog --infobox "Installing Cinnamon desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing Cinnamon desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         cinnamon \
@@ -154,7 +154,7 @@ install_cinnamon() {
 install_mate() {
     log_info "Installing MATE..."
     
-    dialog --infobox "Installing MATE desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing MATE desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         mate \
@@ -171,7 +171,7 @@ install_mate() {
 install_lxqt() {
     log_info "Installing LXQt..."
     
-    dialog --infobox "Installing LXQt desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing LXQt desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         lxqt \
@@ -186,7 +186,7 @@ install_lxqt() {
 install_budgie() {
     log_info "Installing Budgie..."
     
-    dialog --infobox "Installing Budgie desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing Budgie desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         budgie-desktop \
@@ -205,7 +205,7 @@ install_budgie() {
 install_deepin() {
     log_info "Installing Deepin..."
     
-    dialog --infobox "Installing Deepin desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing Deepin desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         deepin \
@@ -224,7 +224,7 @@ install_deepin() {
 install_enlightenment() {
     log_info "Installing Enlightenment..."
     
-    dialog --infobox "Installing Enlightenment desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing Enlightenment desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         enlightenment \
@@ -243,7 +243,7 @@ install_enlightenment() {
 install_lxde() {
     log_info "Installing LXDE..."
     
-    dialog --infobox "Installing LXDE desktop environment...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing LXDE desktop environment...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         lxde-common \
@@ -267,7 +267,7 @@ install_lxde() {
 install_i3() {
     log_info "Installing i3..."
     
-    dialog --infobox "Installing i3 window manager with recommended configuration...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing i3 window manager with recommended configuration...\nThis may take several minutes." 5 60
     
     # Install display manager first
     arch-chroot /mnt pacman -S --noconfirm \
@@ -289,7 +289,7 @@ install_i3() {
 install_openbox() {
     log_info "Installing OpenBox..."
     
-    dialog --infobox "Installing OpenBox window manager with recommended configuration...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing OpenBox window manager with recommended configuration...\nThis may take several minutes." 5 60
     
     # Install display manager
     arch-chroot /mnt pacman -S --noconfirm \
@@ -311,7 +311,7 @@ install_openbox() {
 install_sway() {
     log_info "Installing Sway..."
     
-    dialog --infobox "Installing Sway window manager with recommended configuration...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing Sway window manager with recommended configuration...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         sway \
@@ -332,14 +332,14 @@ install_sway() {
     log_info "Sway installed"
     
     # Note: Sway doesn't use a display manager, user starts it from tty
-    dialog --msgbox "Sway Installation Note:\n\nSway is a Wayland compositor.\nAfter login, type 'sway' to start it.\n\nYour config is at: ~/.config/sway/config\n\nYou may want to add 'exec sway' to your ~/.bash_profile for auto-start." 14 60
+    dialog_safe --msgbox "Sway Installation Note:\n\nSway is a Wayland compositor.\nAfter login, type 'sway' to start it.\n\nYour config is at: ~/.config/sway/config\n\nYou may want to add 'exec sway' to your ~/.bash_profile for auto-start." 14 60
 }
 
 # Install AwesomeWM
 install_awesome() {
     log_info "Installing AwesomeWM..."
     
-    dialog --infobox "Installing AwesomeWM with recommended configuration...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing AwesomeWM with recommended configuration...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         lightdm \
@@ -360,7 +360,7 @@ install_awesome() {
 install_bspwm() {
     log_info "Installing BSPWM..."
     
-    dialog --infobox "Installing BSPWM with recommended configuration...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing BSPWM with recommended configuration...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         lightdm \
@@ -381,7 +381,7 @@ install_bspwm() {
 install_qtile() {
     log_info "Installing Qtile..."
     
-    dialog --infobox "Installing Qtile window manager...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing Qtile window manager...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         qtile \
@@ -403,7 +403,7 @@ install_qtile() {
 install_dwm() {
     log_info "Installing DWM..."
     
-    dialog --infobox "Installing DWM (Suckless Dynamic Window Manager)...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing DWM (Suckless Dynamic Window Manager)...\nThis may take several minutes." 5 60
     
     # Install dependencies
     arch-chroot /mnt pacman -S --noconfirm \
@@ -436,7 +436,7 @@ EOF
     
     arch-chroot /mnt systemctl enable lightdm
     
-    dialog --msgbox "DWM Installation Note:\n\nDWM is a suckless window manager that requires compiling.\n\nTo customize:\n1. Edit config.h in the dwm source\n2. Recompile with: sudo make clean install\n\nKeybindings:\nMod+Enter: Terminal (st)\nMod+P: dmenu\nMod+J/K: Navigate windows\nMod+Shift+Q: Close window\nMod+1-9: Switch tag\nMod+Shift+1-9: Move to tag\nMod+B: Toggle bar\nMod+T: Tiled layout\nMod+F: Floating layout\nMod+M: Monocle layout" 20 65
+    dialog_safe --msgbox "DWM Installation Note:\n\nDWM is a suckless window manager that requires compiling.\n\nTo customize:\n1. Edit config.h in the dwm source\n2. Recompile with: sudo make clean install\n\nKeybindings:\nMod+Enter: Terminal (st)\nMod+P: dmenu\nMod+J/K: Navigate windows\nMod+Shift+Q: Close window\nMod+1-9: Switch tag\nMod+Shift+1-9: Move to tag\nMod+B: Toggle bar\nMod+T: Tiled layout\nMod+F: Floating layout\nMod+M: Monocle layout" 20 65
     
     log_info "DWM installed"
 }
@@ -445,7 +445,7 @@ EOF
 install_xmonad() {
     log_info "Installing XMonad..."
     
-    dialog --infobox "Installing XMonad (Haskell tiling WM)...\nThis may take several minutes." 5 60
+    dialog_safe --infobox "Installing XMonad (Haskell tiling WM)...\nThis may take several minutes." 5 60
     
     arch-chroot /mnt pacman -S --noconfirm \
         xmonad \
@@ -508,7 +508,7 @@ install_graphics_drivers() {
     local gpu
     gpu=$(get_gpu_info)
     
-    dialog --infobox "Detecting graphics hardware...\n\nFound: ${gpu:0:50}" 5 60
+    dialog_safe --infobox "Detecting graphics hardware...\n\nFound: ${gpu:0:50}" 5 60
     
     # Detect GPU vendor
     if echo "$gpu" | grep -qi "nvidia"; then
@@ -539,7 +539,7 @@ install_nvidia_drivers() {
     log_info "Installing NVIDIA drivers..."
     
     local driver_choice
-    driver_choice=$(dialog --clear --title "NVIDIA Driver" \
+    driver_choice=$(dialog_safe --clear --title "NVIDIA Driver" \
         --menu "Select NVIDIA driver:\n\nOpen drivers work well for most users.\nProprietary drivers offer best performance." 15 60 3 \
         "open" "nvidia-open (Open source, recommended)" \
         "proprietary" "nvidia (Proprietary, best performance)" \
@@ -594,7 +594,7 @@ install_intel_drivers() {
 install_common_apps() {
     log_info "Installing common applications..."
     
-    dialog --infobox "Installing common applications..." 3 50
+    dialog_safe --infobox "Installing common applications..." 3 50
     
     # Web browser
     arch-chroot /mnt pacman -S --noconfirm firefox

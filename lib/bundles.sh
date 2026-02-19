@@ -104,7 +104,7 @@ select_bundles() {
     done
     
     local selected
-    selected=$(dialog --clear --title "Package Bundles" \
+    selected=$(dialog_safe --clear --title "Package Bundles" \
         --checklist "Select package bundles to install:\n\nThese are curated collections of software for common use cases.\n\nUse SPACE to select, ENTER to confirm:" 22 75 10 \
         "${bundle_list[@]}" \
         3>&1 1>&2 2>&3) || return 0
@@ -129,7 +129,7 @@ select_bundles() {
     
     summary+="\nInstall these bundles?"
     
-    if ! dialog --yesno "$summary" 20 70; then
+    if ! dialog_safe --yesno "$summary" 20 70; then
         return 0
     fi
     
@@ -157,7 +157,7 @@ install_bundle() {
     
     log_info "Installing bundle: $name"
     
-    dialog --infobox "Installing $name bundle...\n\nThis may take a few minutes." 6 60
+    dialog_safe --infobox "Installing $name bundle...\n\nThis may take a few minutes." 6 60
     
     # Install official packages
     if [[ -n "$packages" ]]; then
@@ -374,7 +374,7 @@ show_bundle_details() {
         details+="  $aur_packages\n"
     fi
     
-    dialog --msgbox "$details" 25 75
+    dialog_safe --msgbox "$details" 25 75
 }
 
 # Quick bundle selection (select multiple at once)
@@ -391,7 +391,7 @@ quick_bundle_install() {
     
     # Show menu
     local choice
-    choice=$(dialog --clear --title "Quick Bundle Install" \
+    choice=$(dialog_safe --clear --title "Quick Bundle Install" \
         --menu "Select a bundle to view details or install:\n\nUse arrows to navigate, Enter to select" 20 75 10 \
         "${menu_items[@]}" \
         "install_all" "Install multiple bundles..." \
@@ -407,9 +407,9 @@ quick_bundle_install() {
             ;;
         *)
             show_bundle_details "$choice"
-            if dialog --yesno "Install the $choice bundle?" 7 50; then
+            if dialog_safe --yesno "Install the $choice bundle?" 7 50; then
                 install_bundle "$choice"
-                dialog --msgbox "✓ $choice bundle installed!" 6 40
+                dialog_safe --msgbox "✓ $choice bundle installed!" 6 40
             fi
             quick_bundle_install
             ;;

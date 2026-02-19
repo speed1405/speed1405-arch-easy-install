@@ -9,7 +9,7 @@ run_preflight_checks() {
     local checks_failed=0
     local results=()
     
-    dialog --infobox "Running system checks..." 3 40
+    dialog_safe --infobox "Running system checks..." 3 40
     
     # Check 1: Root privileges
     if check_root_privileges; then
@@ -96,11 +96,11 @@ run_preflight_checks() {
     
     if [[ $checks_failed -gt 0 ]]; then
         result_text+="\n\n⚠ Some checks failed.\nReview the results before continuing."
-        dialog --msgbox "$result_text" 20 70
+        dialog_safe --msgbox "$result_text" 20 70
         return 1
     else
         result_text+="\n\n✓ All checks passed!"
-        dialog --msgbox "$result_text" 20 70
+        dialog_safe --msgbox "$result_text" 20 70
         return 0
     fi
 }
@@ -272,7 +272,7 @@ check_existing_installations() {
     fi
     
     if [[ $found -eq 1 ]]; then
-        if dialog --yesno "Existing partitions detected on $disk!\n\nContinuing will ERASE ALL DATA.\n\nAre you sure you want to proceed?" 10 60; then
+        if dialog_safe --yesno "Existing partitions detected on $disk!\n\nContinuing will ERASE ALL DATA.\n\nAre you sure you want to proceed?" 10 60; then
             return 0
         else
             return 1

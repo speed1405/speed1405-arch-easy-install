@@ -144,7 +144,7 @@ load_state() {
 # Check if we can resume installation
 check_resume() {
     if load_state; then
-        if dialog --yesno "A previous installation was interrupted.\n\nWould you like to resume from where it left off?\n\nNote: If you choose 'No', the previous state will be cleared." 12 60; then
+        if dialog_safe --yesno "A previous installation was interrupted.\n\nWould you like to resume from where it left off?\n\nNote: If you choose 'No', the previous state will be cleared." 12 60; then
             return 0
         else
             # Clear state

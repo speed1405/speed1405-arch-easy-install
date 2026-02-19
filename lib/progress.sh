@@ -20,7 +20,7 @@ show_progress_bar() {
             sleep 0.5
         done
         echo "100"
-    ) | dialog --gauge "$message" 8 70 0
+    ) | dialog_safe --gauge "$message" 8 70 0
 }
 
 # Show installation progress with phase information
@@ -30,7 +30,7 @@ show_installation_progress() {
     local phase_name=$3
     local percent=$((current_phase * 100 / total_phases))
     
-    dialog --mixedgauge "Installation Progress\n\nPhase $current_phase of $total_phases: $phase_name" 12 70 $percent \
+    dialog_safe --mixedgauge "Installation Progress\n\nPhase $current_phase of $total_phases: $phase_name" 12 70 $percent \
         "Pre-installation checks" "${current_phase > 0 ? 1 : 0}" \
         "Disk partitioning" "${current_phase > 1 ? 1 : 0}" \
         "Base installation" "${current_phase > 2 ? 1 : 0}" \
@@ -75,7 +75,7 @@ run_with_progress() {
         fi
         
         exit $exit_code
-    ) | dialog --gauge "" 8 60 0
+    ) | dialog_safe --gauge "" 8 60 0
 }
 
 # Show package installation progress
@@ -109,7 +109,7 @@ run_pacman_with_progress() {
             sleep 0.5
         done
         echo "100"
-    ) | dialog --gauge "Installing packages..." 10 70 0
+    ) | dialog_safe --gauge "Installing packages..." 10 70 0
 }
 
 # Create a tailbox dialog for showing command output
@@ -117,7 +117,7 @@ show_command_output() {
     local title=$1
     local logfile=$2
     
-    dialog --title "$title" --tailbox "$logfile" 20 80 &
+    dialog_safe --title "$title" --tailbox "$logfile" 20 80 &
     local pid=$!
     
     echo $pid
@@ -165,7 +165,7 @@ show_multi_step_progress() {
         ((current++))
         local percent=$((current * 100 / total))
         
-        dialog --gauge "$title\n\nStep $current of $total:\n$step" 10 60 "$percent"
+        dialog_safe --gauge "$title\n\nStep $current of $total:\n$step" 10 60 "$percent"
         sleep 1
     done
 }
@@ -184,5 +184,5 @@ download_with_progress() {
                 echo "$percent"
             fi
         done
-    ) | dialog --gauge "$title" 8 70 0
+    ) | dialog_safe --gauge "$title" 8 70 0
 }

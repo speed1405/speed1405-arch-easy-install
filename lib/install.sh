@@ -14,7 +14,7 @@ install_base() {
     select_mirror || return 1
     
     # Install base packages with progress
-    dialog --infobox "Installing base packages...\n\nThis may take 5-15 minutes depending on your internet speed." 6 60
+    dialog_safe --infobox "Installing base packages...\n\nThis may take 5-15 minutes depending on your internet speed." 6 60
     
     local base_packages=("base" "base-devel" "linux" "linux-firmware")
     
@@ -32,7 +32,7 @@ install_base() {
     else
         # Install packages
         if ! pacstrap /mnt "${base_packages[@]}"; then
-            dialog --msgbox "Error: Failed to install base packages.\n\nCheck your internet connection and try again." 10 60
+            dialog_safe --msgbox "Error: Failed to install base packages.\n\nCheck your internet connection and try again." 10 60
             return 1
         fi
     fi
@@ -40,7 +40,7 @@ install_base() {
     log_info "Base packages installed successfully"
     
     # Generate fstab
-    dialog --infobox "Generating fstab..." 3 40
+    dialog_safe --infobox "Generating fstab..." 3 40
     
     if [[ "$(get_config '.options.dry_run')" != "true" ]]; then
         genfstab -U /mnt >> /mnt/etc/fstab
@@ -69,7 +69,7 @@ select_mirror() {
     
     # Ask user for preference
     local mirror_choice
-    mirror_choice=$(dialog --clear --title "Mirror Selection" \
+    mirror_choice=$(dialog_safe --clear --title "Mirror Selection" \
         --menu "How would you like to select mirrors?\n\nReflector automatically finds the fastest mirrors." 15 60 3 \
         1 "Auto - Use reflector (recommended)" \
         2 "Manual - Select country/region" \
@@ -100,10 +100,10 @@ use_reflector() {
     local reflector_opts="--age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
     
     if [[ -n "$country" ]]; then
-        dialog --infobox "Finding fastest mirrors in your country ($country)...\n\nThis may take a moment..." 6 60
+        dialog_safe --infobox "Finding fastest mirrors in your country ($country)...\n\nThis may take a moment..." 6 60
         reflector_opts="--country '$country' $reflector_opts"
     else
-        dialog --infobox "Finding fastest mirrors worldwide...\n\nThis may take a moment..." 5 60
+        dialog_safe --infobox "Finding fastest mirrors worldwide...\n\nThis may take a moment..." 5 60
     fi
     
     # Run reflector
@@ -124,14 +124,14 @@ use_reflector() {
     fastest_mirror=$(head -5 /etc/pacman.d/mirrorlist | grep "^#Server" | head -1 | sed 's/#Server = //')
     
     if [[ -n "$fastest_mirror" ]]; then
-        dialog --msgbox "✓ Fastest mirror found:\n\n$fastest_mirror\n\nMirrorlist updated successfully!" 10 60
+        dialog_safe --msgbox "✓ Fastest mirror found:\n\n$fastest_mirror\n\nMirrorlist updated successfully!" 10 60
     fi
 }
 
 # Manual mirror selection
 select_manual_mirror() {
     local region
-    region=$(dialog --clear --title "Select Mirror Region" \
+    region=$(dialog_safe --clear --title "Select Mirror Region" \
         --menu "Choose your region for fastest downloads:" 20 60 15 \
         "Worldwide" "Global CDN" \
         "Australia" "Australia" \
@@ -173,7 +173,7 @@ select_manual_mirror() {
         "United States" "United States" \
         3>&1 1>&2 2>&3) || return 0
     
-    dialog --infobox "Updating mirrorlist for $region..." 3 50
+    dialog_safe --infobox "Updating mirrorlist for $region..." 3 50
     
     if [[ "$region" == "Worldwide" ]]; then
         curl -s "https://archlinux.org/mirrorlist/all/https/" | sed 's/^#Server/Server/' > /etc/pacman.d/mirrorlist
@@ -222,7 +222,7 @@ configure_timezone() {
     
     # Select region
     local region
-    region=$(dialog --clear --title "Timezone - Region" \
+    region=$(dialog_safe --clear --title "Timezone - Region" \
         --menu "Select your region:" 20 60 15 \
         "Africa" "Africa" \
         "America" "America" \
@@ -248,7 +248,7 @@ configure_timezone() {
         fi
     done <<< "$cities"
     
-    TIMEZONE=$(dialog --clear --title "Timezone - City" \
+    TIMEZONE=$(dialog_safe --clear --title "Timezone - City" \
         --menu "Select your city or nearest timezone:" 25 70 20 \
         "${menu_items[@]}" \
         3>&1 1>&2 2>&3) || return 1
@@ -269,7 +269,7 @@ configure_timezone() {
 configure_locale() {
     log_info "Configuring locale..."
     
-    LOCALE=$(dialog --clear --title "Locale" \
+    LOCALE=$(dialog_safe --clear --title "Locale" \
         --menu "Select your locale:\n(These are the most common)" 20 70 15 \
         "en_US.UTF-8" "English (United States)" \
         "en_GB.UTF-8" "English (United Kingdom)" \
@@ -312,7 +312,7 @@ configure_locale() {
 configure_keyboard() {
     log_info "Configuring keyboard..."
     
-    KEYBOARD=$(dialog --clear --title "Keyboard Layout" \
+    KEYBOARD=$(dialog_safe --clear --title "Keyboard Layout" \
         --menu "Select your keyboard layout:\n(These are the most common)" 25 60 20 \
         "us" "US English" \
         "uk" "UK English" \
@@ -372,12 +372,12 @@ configure_hostname() {
     log_info "Configuring hostname..."
     
     while true; do
-        HOSTNAME=$(dialog --clear --title "Hostname" \
+        HOSTNAME=$(dialog_safe --clear --title "Hostname" \
             --inputbox "Enter a hostname for your computer:\n(Only letters, numbers, and hyphens)" 10 50 "archpc" \
             3>&1 1>&2 2>&3) || return 1
         
         if ! validate_hostname "$HOSTNAME"; then
-            dialog --msgbox "Error: Invalid hostname.\n\n- 1-63 characters\n- Letters, numbers, hyphens only\n- Cannot start/end with hyphen\n- Cannot be all numeric" 12 50
+            dialog_safe --msgbox "Error: Invalid hostname.\n\n- 1-63 characters\n- Letters, numbers, hyphens only\n- Cannot start/end with hyphen\n- Cannot be all numeric" 12 50
             continue
         fi
         
@@ -407,26 +407,26 @@ configure_users() {
     log_info "Configuring users..."
     
     # Set root password
-    dialog --msgbox "You will now set the ROOT password.\n\nThis is the administrator account.\nKeep it secure!" 10 50
+    dialog_safe --msgbox "You will now set the ROOT password.\n\nThis is the administrator account.\nKeep it secure!" 10 50
     
     while true; do
         local root_pass
-        root_pass=$(dialog --clear --title "Root Password" \
+        root_pass=$(dialog_safe --clear --title "Root Password" \
             --passwordbox "Enter root password:" 8 50 \
             3>&1 1>&2 2>&3) || return 1
         
         local root_pass_confirm
-        root_pass_confirm=$(dialog --clear --title "Confirm Root Password" \
+        root_pass_confirm=$(dialog_safe --clear --title "Confirm Root Password" \
             --passwordbox "Confirm root password:" 8 50 \
             3>&1 1>&2 2>&3) || return 1
         
         if [[ "$root_pass" != "$root_pass_confirm" ]]; then
-            dialog --msgbox "Passwords do not match. Please try again." 7 50
+            dialog_safe --msgbox "Passwords do not match. Please try again." 7 50
             continue
         fi
         
         if ! validate_password "$root_pass" 6; then
-            dialog --msgbox "Password is too weak.\n\n- At least 6 characters\n- Not a common password" 9 50
+            dialog_safe --msgbox "Password is too weak.\n\n- At least 6 characters\n- Not a common password" 9 50
             continue
         fi
         
@@ -439,20 +439,20 @@ configure_users() {
     done
     
     # Create user account
-    dialog --msgbox "Now you'll create a regular user account.\n\nThis will be your daily use account." 10 50
+    dialog_safe --msgbox "Now you'll create a regular user account.\n\nThis will be your daily use account." 10 50
     
     while true; do
-        USERNAME=$(dialog --clear --title "Create User" \
+        USERNAME=$(dialog_safe --clear --title "Create User" \
             --inputbox "Enter username:\n(lowercase letters and numbers only)" 10 50 \
             3>&1 1>&2 2>&3) || return 1
         
         if ! validate_username "$USERNAME"; then
-            dialog --msgbox "Error: Invalid username.\n\n- Start with a letter\n- Lowercase letters, numbers, hyphens\n- Not a reserved system name" 11 50
+            dialog_safe --msgbox "Error: Invalid username.\n\n- Start with a letter\n- Lowercase letters, numbers, hyphens\n- Not a reserved system name" 11 50
             continue
         fi
         
         if arch-chroot /mnt id "$USERNAME" &>/dev/null; then
-            dialog --msgbox "Error: User '$USERNAME' already exists." 7 50
+            dialog_safe --msgbox "Error: User '$USERNAME' already exists." 7 50
             continue
         fi
         
@@ -467,22 +467,22 @@ configure_users() {
     # Set user password
     while true; do
         local user_pass
-        user_pass=$(dialog --clear --title "User Password" \
+        user_pass=$(dialog_safe --clear --title "User Password" \
             --passwordbox "Enter password for $USERNAME:" 8 50 \
             3>&1 1>&2 2>&3) || return 1
         
         local user_pass_confirm
-        user_pass_confirm=$(dialog --clear --title "Confirm Password" \
+        user_pass_confirm=$(dialog_safe --clear --title "Confirm Password" \
             --passwordbox "Confirm password for $USERNAME:" 8 50 \
             3>&1 1>&2 2>&3) || return 1
         
         if [[ "$user_pass" != "$user_pass_confirm" ]]; then
-            dialog --msgbox "Passwords do not match. Please try again." 7 50
+            dialog_safe --msgbox "Passwords do not match. Please try again." 7 50
             continue
         fi
         
         if ! validate_password "$user_pass" 6; then
-            dialog --msgbox "Password is too weak.\n\n- At least 6 characters\n- Not a common password" 9 50
+            dialog_safe --msgbox "Password is too weak.\n\n- At least 6 characters\n- Not a common password" 9 50
             continue
         fi
         
@@ -513,7 +513,7 @@ install_bootloader() {
     # Ask for bootloader preference
     local bootloader_choice
     if [[ "$BOOT_MODE" == "UEFI" ]]; then
-        bootloader_choice=$(dialog --clear --title "Bootloader Selection" \
+        bootloader_choice=$(dialog_safe --clear --title "Bootloader Selection" \
             --menu "Choose a bootloader:\n\nFor UEFI systems, systemd-boot is simpler." 12 60 2 \
             "systemd-boot" "systemd-boot - Simple, native to systemd" \
             "grub" "GRUB - More features, dual-boot support" \
@@ -555,7 +555,7 @@ install_bootloader() {
 install_systemd_boot() {
     log_info "Installing systemd-boot..."
     
-    dialog --infobox "Installing systemd-boot..." 3 40
+    dialog_safe --infobox "Installing systemd-boot..." 3 40
     
     # Install systemd-boot
     arch-chroot /mnt bootctl install
@@ -598,7 +598,7 @@ EOF
 install_grub_uefi() {
     log_info "Installing GRUB for UEFI..."
     
-    dialog --infobox "Installing GRUB for UEFI..." 3 40
+    dialog_safe --infobox "Installing GRUB for UEFI..." 3 40
     
     arch-chroot /mnt pacman -S --noconfirm grub efibootmgr
     arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
@@ -614,7 +614,7 @@ install_grub_uefi() {
 install_grub_bios() {
     log_info "Installing GRUB for BIOS..."
     
-    dialog --infobox "Installing GRUB for BIOS..." 3 40
+    dialog_safe --infobox "Installing GRUB for BIOS..." 3 40
     
     arch-chroot /mnt pacman -S --noconfirm grub
     arch-chroot /mnt grub-install --target=i386-pc "$INSTALL_DISK"
@@ -634,7 +634,7 @@ post_installation() {
         log_info "DRY RUN: Would configure post-installation settings"
         sleep 1
     else
-        dialog --infobox "Configuring system services..." 3 40
+        dialog_safe --infobox "Configuring system services..." 3 40
         
         # Enable essential services
         arch-chroot /mnt systemctl enable NetworkManager
