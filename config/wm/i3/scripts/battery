@@ -1,0 +1,43 @@
+#!/bin/bash
+# Battery script for i3blocks
+# Displays battery percentage and status
+
+# Find battery
+BATTERY=""
+for bat in /sys/class/power_supply/BAT*/; do
+    if [ -d "$bat" ]; then
+        BATTERY=$(basename "$bat")
+        break
+    fi
+done
+
+if [ -z "$BATTERY" ]; then
+    echo "No battery"
+    exit 0
+fi
+
+# Get battery info
+CAPACITY=$(cat /sys/class/power_supply/$BATTERY/capacity)
+STATUS=$(cat /sys/class/power_supply/$BATTERY/status)
+
+# Choose icon based on capacity
+if [ "$CAPACITY" -le 20 ]; then
+    ICON="🔴"
+    COLOR="#cc241d"
+elif [ "$CAPACITY" -le 50 ]; then
+    ICON="🟡"
+    COLOR="#d79921"
+else
+    ICON="🟢"
+    COLOR="#98971a"
+fi
+
+# Override if charging
+if [ "$STATUS" = "Charging" ]; then
+    ICON="⚡"
+    COLOR="#458588"
+fi
+
+# Output
+echo "<span color=\"$COLOR\">$ICON ${CAPACITY}%</span>"
+echo "<span color=\"$COLOR\">$ICON ${CAPACITY}%</span>"

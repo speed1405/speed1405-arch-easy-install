@@ -1,0 +1,42 @@
+#!/bin/bash
+# Volume script for i3blocks
+# Displays volume percentage and icon
+
+# Get the volume level
+VOLUME=$(pamixer --get-volume)
+MUTE=$(pamixer --get-mute)
+
+# Choose icon based on volume level and mute status
+if [ "$MUTE" = "true" ]; then
+    ICON="🔇"
+    COLOR="#cc241d"
+elif [ "$VOLUME" -eq 0 ]; then
+    ICON="🔇"
+    COLOR="#a89984"
+elif [ "$VOLUME" -lt 30 ]; then
+    ICON="🔈"
+    COLOR="#ebdbb2"
+elif [ "$VOLUME" -lt 70 ]; then
+    ICON="🔉"
+    COLOR="#ebdbb2"
+else
+    ICON="🔊"
+    COLOR="#ebdbb2"
+fi
+
+# Output
+if [ "$MUTE" = "true" ]; then
+    echo "<span color=\"$COLOR\">$ICON MUTE</span>"
+    echo "<span color=\"$COLOR\">$ICON MUTE</span>"
+else
+    echo "<span color=\"$COLOR\">$ICON ${VOLUME}%</span>"
+    echo "<span color=\"$COLOR\">$ICON ${VOLUME}%</span>"
+fi
+
+# Handle click events
+case $BLOCK_BUTTON in
+    1) pavucontrol & ;;  # Left click - open volume control
+    3) pamixer -t ;;     # Right click - toggle mute
+    4) pamixer -i 5 ;;   # Scroll up - increase volume
+    5) pamixer -d 5 ;;   # Scroll down - decrease volume
+esac

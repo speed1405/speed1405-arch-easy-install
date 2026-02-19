@@ -1,0 +1,38 @@
+#!/bin/bash
+# Ethernet script for i3blocks
+# Displays Ethernet connection status
+
+INTERFACE="${BLOCK_INSTANCE:-eth0}"
+
+# Check if interface exists
+if ! ip link show "$INTERFACE" &>/dev/null; then
+    echo ""
+    exit 0
+fi
+
+# Check if connected
+if ip link show "$INTERFACE" | grep -q "state UP"; then
+    # Get IP address
+    IP=$(ip addr show "$INTERFACE" | grep "inet " | awk '{print $2}' | cut -d/ -f1)
+    
+    if [ -n "$IP" ]; then
+        echo "🌐 $IP"
+        echo "🌐"
+        COLOR="#98971a"
+    else
+        echo "🌐 Connecting..."
+        echo "🌐"
+        COLOR="#d79921"
+    fi
+else
+    echo "🌐 Off"
+    echo "🌐 Off"
+    COLOR="#a89984"
+fi
+
+echo "$COLOR"
+
+# Click to open network manager
+case $BLOCK_BUTTON in
+    1) nm-connection-editor & ;;
+esac

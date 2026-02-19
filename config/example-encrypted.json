@@ -1,0 +1,31 @@
+{
+    "version": "1.0.0",
+    "disk": {
+        "device": "/dev/sda",
+        "partitioning": "automatic",
+        "filesystem": "ext4",
+        "swap_size": "4096",
+        "separate_home": true,
+        "encrypt": true
+    },
+    "system": {
+        "hostname": "arch-secure",
+        "timezone": "America/New_York",
+        "locale": "en_US.UTF-8",
+        "keymap": "us",
+        "create_user": true,
+        "username": "user"
+    },
+    "desktop": {
+        "install": true,
+        "environment": "kde",
+        "install_drivers": true
+    },
+    "packages": {
+        "aur_helper": true
+    },
+    "security": {
+        "enable_firewall": true,
+        "encrypt_disk": true
+    }
+}

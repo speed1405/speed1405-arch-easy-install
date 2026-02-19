@@ -1,0 +1,44 @@
+#!/bin/bash
+# Backlight script for i3blocks
+# Displays screen brightness percentage
+
+# Find backlight device
+BACKLIGHT_DEVICE="${BLOCK_INSTANCE:-intel_backlight}"
+
+if [ ! -d "/sys/class/backlight/$BACKLIGHT_DEVICE" ]; then
+    # Try to find any available backlight device
+    BACKLIGHT_DEVICE=$(ls /sys/class/backlight/ | head -n 1)
+fi
+
+if [ -z "$BACKLIGHT_DEVICE" ] || [ ! -d "/sys/class/backlight/$BACKLIGHT_DEVICE" ]; then
+    echo ""
+    exit 0
+fi
+
+# Get brightness values
+MAX=$(cat "/sys/class/backlight/$BACKLIGHT_DEVICE/max_brightness")
+CURRENT=$(cat "/sys/class/backlight/$BACKLIGHT_DEVICE/brightness")
+
+# Calculate percentage
+PERCENT=$((CURRENT * 100 / MAX))
+
+# Choose icon
+if [ "$PERCENT" -eq 0 ]; then
+    ICON="🔅"
+elif [ "$PERCENT" -lt 30 ]; then
+    ICON="🔅"
+elif [ "$PERCENT" -lt 70 ]; then
+    ICON="🔆"
+else
+    ICON="🔆"
+fi
+
+echo "$ICON ${PERCENT}%"
+echo "$ICON"
+
+# Handle click events
+case $BLOCK_BUTTON in
+    4) brightnessctl set +5% ;;  # Scroll up
+    5) brightnessctl set 5%- ;;  # Scroll down
+    1) brightnessctl set 50% ;;  # Left click - set to 50%
+esac

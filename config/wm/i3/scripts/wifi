@@ -1,0 +1,59 @@
+#!/bin/bash
+# WiFi script for i3blocks
+# Displays WiFi status and signal strength
+
+INTERFACE="${BLOCK_INSTANCE:-wlan0}"
+
+# Check if interface exists
+if ! ip link show "$INTERFACE" &>/dev/null; then
+    echo ""
+    exit 0
+fi
+
+# Check if connected
+if ! iw dev "$INTERFACE" link | grep -q "SSID"; then
+    echo "📡 Off"
+    echo "📡 Off"
+    exit 0
+fi
+
+# Get SSID and signal strength
+SSID=$(iw dev "$INTERFACE" link | grep "SSID:" | awk '{print $2}')
+SIGNAL=$(iw dev "$INTERFACE" link | grep "signal:" | awk '{print $2}')
+
+# Choose icon based on signal strength
+if [ -n "$SIGNAL" ]; then
+    SIGNAL_INT=${SIGNAL%.*}
+    SIGNAL_INT=${SIGNAL_INT#-}
+    
+    if [ "$SIGNAL_INT" -lt 50 ]; then
+        ICON="📶"  # Excellent
+        COLOR="#98971a"
+    elif [ "$SIGNAL_INT" -lt 65 ]; then
+        ICON="📶"  # Good
+        COLOR="#ebdbb2"
+    elif [ "$SIGNAL_INT" -lt 75 ]; then
+        ICON="📶"  # Fair
+        COLOR="#d79921"
+    else
+        ICON="📶"  # Poor
+        COLOR="#cc241d"
+    fi
+else
+    ICON="📶"
+    COLOR="#ebdbb2"
+fi
+
+# Shorten SSID if too long
+if [ ${#SSID} -gt 10 ]; then
+    SSID="${SSID:0:9}.."
+fi
+
+echo "<span color=\"$COLOR\">$ICON $SSID</span>"
+echo "<span color=\"$COLOR\">$ICON</span>"
+
+# Click to open network manager
+case $BLOCK_BUTTON in
+    1) nm-connection-editor & ;;
+    3) nmcli connection up "$SSID" 2>/dev/null || nmcli device wifi rescan ;;
+esac

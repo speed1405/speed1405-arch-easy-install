@@ -1,0 +1,24 @@
+#!/bin/bash
+# Memory usage script for i3blocks
+# Displays memory usage percentage
+
+# Get memory usage
+MEM=$(free | grep Mem | awk '{printf("%.0f", ($3/$2) * 100.0)}')
+
+# Set color based on usage
+if [ "$MEM" -ge 90 ]; then
+    COLOR="#cc241d"  # Red
+elif [ "$MEM" -ge 70 ]; then
+    COLOR="#d79921"  # Yellow
+else
+    COLOR="#ebdbb2"  # White
+fi
+
+# Output
+echo "<span color=\"$COLOR\">${MEM}%</span>"
+echo "<span color=\"$COLOR\">${MEM}%</span>"
+
+# Click to open system monitor
+case $BLOCK_BUTTON in
+    1) alacritty -e htop & ;;
+esac

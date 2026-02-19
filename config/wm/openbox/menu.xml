@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Openbox Menu Configuration
+  Arch Linux Easy Installer - Recommended Menu
+-->
+
+<openbox_menu xmlns="http://openbox.org/3.4/menu">
+  <menu id="root-menu" label="Openbox 3">
+    <separator label="Applications"/>
+    
+    <item label="Terminal">
+      <action name="Execute">
+        <command>alacritty</command>
+      </action>
+    </item>
+    
+    <item label="Web Browser">
+      <action name="Execute">
+        <command>firefox</command>
+      </action>
+    </item>
+    
+    <item label="File Manager">
+      <action name="Execute">
+        <command>thunar</command>
+      </action>
+    </item>
+    
+    <item label="Text Editor">
+      <action name="Execute">
+        <command>mousepad</command>
+      </action>
+    </item>
+    
+    <separator/>
+    
+    <menu id="apps-office-menu" label="Office">
+      <item label="LibreOffice Writer">
+        <action name="Execute">
+          <command>libreoffice --writer</command>
+        </action>
+      </item>
+      <item label="LibreOffice Calc">
+        <action name="Execute">
+          <command>libreoffice --calc</command>
+        </action>
+      </item>
+      <item label="LibreOffice Impress">
+        <action name="Execute">
+          <command>libreoffice --impress</command>
+        </action>
+      </item>
+    </menu>
+    
+    <menu id="apps-multimedia-menu" label="Multimedia">
+      <item label="VLC Media Player">
+        <action name="Execute">
+          <command>vlc</command>
+        </action>
+      </item>
+      <item label="MPV">
+        <action name="Execute">
+          <command>mpv</command>
+        </action>
+      </item>
+    </menu>
+    
+    <menu id="apps-graphics-menu" label="Graphics">
+      <item label="GIMP">
+        <action name="Execute">
+          <command>gimp</command>
+        </action>
+      </item>
+      <item label="Viewnior">
+        <action name="Execute">
+          <command>viewnior</command>
+        </action>
+      </item>
+    </menu>
+    
+    <menu id="apps-games-menu" label="Games">
+      <item label="Steam">
+        <action name="Execute">
+          <command>steam</command>
+        </action>
+      </item>
+    </menu>
+    
+    <menu id="apps-net-menu" label="Internet">
+      <item label="Firefox">
+        <action name="Execute">
+          <command>firefox</command>
+        </action>
+      </item>
+      <item label="Thunderbird">
+        <action name="Execute">
+          <command>thunderbird</command>
+        </action>
+      </item>
+      <item label="Transmission">
+        <action name="Execute">
+          <command>transmission-gtk</command>
+        </action>
+      </item>
+    </menu>
+    
+    <separator/>
+    
+    <menu id="settings-menu" label="Settings">
+      <item label="Openbox Configuration">
+        <action name="Execute">
+          <command>obconf</command>
+        </action>
+      </item>
+      <item label="Tint2 Settings">
+        <action name="Execute">
+          <command>tint2conf</command>
+        </action>
+      </item>
+      <item label="Appearance">
+        <action name="Execute">
+          <command>lxappearance</command>
+        </action>
+      </item>
+      <item label="Network Connections">
+        <action name="Execute">
+          <command>nm-connection-editor</command>
+        </action>
+      </item>
+      <item label="Volume Control">
+        <action name="Execute">
+          <command>pavucontrol</command>
+        </action>
+      </item>
+      <separator/>
+      <item label="Edit Menu">
+        <action name="Execute">
+          <command>obmenu</command>
+        </action>
+      </item>
+    </menu>
+    
+    <menu id="accessories-menu" label="Accessories">
+      <item label="Calculator">
+        <action name="Execute">
+          <command>galculator</command>
+        </action>
+      </item>
+      <item label="Screenshot">
+        <action name="Execute">
+          <command>maim --select | xclip -selection clipboard -t image/png</command>
+        </action>
+      </item>
+      <item label="Character Map">
+        <action name="Execute">
+          <command>gucharmap</command>
+        </action>
+      </item>
+    </menu>
+    
+    <separator/>
+    
+    <item label="Run Program">
+      <action name="Execute">
+        <command>rofi -show run</command>
+      </action>
+    </item>
+    
+    <item label="Reconfigure">
+      <action name="Reconfigure"/>
+    </item>
+    
+    <item label="Restart">
+      <action name="Restart"/>
+    </item>
+    
+    <separator/>
+    
+    <item label="Exit">
+      <action name="Exit"/>
+    </item>
+  </menu>
+</openbox_menu>

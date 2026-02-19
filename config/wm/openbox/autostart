@@ -1,0 +1,46 @@
+# Openbox autostart script
+# Arch Linux Easy Installer
+
+# Enable compositing
+picom --config ~/.config/picom/picom.conf -b &
+
+# Set wallpaper
+if [ -f ~/.config/wallpaper.jpg ]; then
+    feh --bg-scale ~/.config/wallpaper.jpg &
+else
+    feh --bg-scale /usr/share/backgrounds/default.jpg &
+fi
+
+# Start notification daemon
+dunst &
+
+# Start panel
+tint2 &
+
+# Start system tray applications
+nm-applet &
+volumeicon &
+blueman-applet &
+
+# Enable numlock
+numlockx on &
+
+# Start clipboard manager
+parcellite &
+
+# Set keyboard repeat rate
+xset r rate 250 50
+
+# Start xautolock for screen locking
+xautolock -time 10 -locker 'i3lock-fancy' -detectsleep &
+
+# Set GTK theme
+export GTK_THEME=Arc-Dark
+export GTK_ICON_THEME=Papirus-Dark
+export GTK_CURSOR_THEME=Adwaita
+
+# Start unclutter to hide mouse cursor
+unclutter -idle 3 &
+
+# Start polkit authentication agent
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &

@@ -1,0 +1,42 @@
+#!/bin/bash
+# Temperature script for i3blocks
+# Displays CPU temperature
+
+# Try to get temperature from various sources
+TEMP=""
+
+# Try sensors first
+if command -v sensors &>/dev/null; then
+    TEMP=$(sensors | grep -E "Core 0|Tdie|Package id 0" | head -n 1 | awk '{print $2}' | sed 's/+//' | sed 's/°C//')
+fi
+
+# Try thermal zone
+if [ -z "$TEMP" ] && [ -f /sys/class/thermal/thermal_zone0/temp ]; then
+    TEMP=$(cat /sys/class/thermal/thermal_zone0/temp)
+    TEMP=$((TEMP / 1000))
+fi
+
+if [ -z "$TEMP" ]; then
+    echo ""
+    exit 0
+fi
+
+# Remove decimal if present
+TEMP=${TEMP%.*}
+
+# Set color based on temperature
+if [ "$TEMP" -ge 80 ]; then
+    COLOR="#cc241d"  # Red
+elif [ "$TEMP" -ge 60 ]; then
+    COLOR="#d79921"  # Yellow
+else
+    COLOR="#98971a"  # Green
+fi
+
+echo "<span color=\"$COLOR\">🌡️ ${TEMP}°C</span>"
+echo "<span color=\"$COLOR\">🌡️</span>"
+
+# Click to open system monitor
+case $BLOCK_BUTTON in
+    1) alacritty -e watch -n 1 sensors & ;;
+esac

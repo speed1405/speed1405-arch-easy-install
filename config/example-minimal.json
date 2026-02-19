@@ -1,0 +1,25 @@
+{
+    "version": "1.0.0",
+    "disk": {
+        "device": "/dev/sda",
+        "partitioning": "automatic",
+        "filesystem": "ext4",
+        "swap_size": "2048",
+        "separate_home": false,
+        "encrypt": false
+    },
+    "system": {
+        "hostname": "arch-minimal",
+        "timezone": "UTC",
+        "locale": "en_US.UTF-8",
+        "keymap": "us",
+        "create_user": true,
+        "username": "user"
+    },
+    "desktop": {
+        "install": false
+    },
+    "packages": {
+        "aur_helper": false
+    }
+}

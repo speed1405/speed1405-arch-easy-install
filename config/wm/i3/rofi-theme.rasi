@@ -1,0 +1,174 @@
+/**
+ * Rofi Theme for Arch Linux Easy Installer
+ * Gruvbox Dark inspired theme
+ */
+
+configuration {
+    modi: "drun,run,window,ssh";
+    font: "Noto Sans 11";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    drun-display-format: "{name}";
+    location: 0;
+    disable-history: false;
+    hide-scrollbar: true;
+    display-drun: "Applications";
+    display-run: "Run";
+    display-window: "Window";
+    display-ssh: "SSH";
+}
+
+* {
+    bg0: #282828;
+    bg1: #3c3836;
+    bg2: #504945;
+    fg0: #fbf1c7;
+    fg1: #ebdbb2;
+    gray: #a89984;
+    red: #cc241d;
+    green: #98971a;
+    yellow: #d79921;
+    blue: #458588;
+    purple: #b16286;
+    aqua: #689d6a;
+    
+    background-color: @bg0;
+    text-color: @fg1;
+    border-color: @bg2;
+}
+
+window {
+    background-color: @bg0;
+    border: 2px;
+    border-radius: 8px;
+    border-color: @blue;
+    padding: 20px;
+    width: 600px;
+}
+
+mainbox {
+    background-color: @bg0;
+    border: 0;
+    padding: 0;
+}
+
+message {
+    background-color: @bg1;
+    border: 1px;
+    border-color: @bg2;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 0 0 10px 0;
+}
+
+textbox {
+    background-color: @bg1;
+    text-color: @fg1;
+}
+
+listview {
+    background-color: @bg0;
+    fixed-height: true;
+    dynamic: true;
+    lines: 10;
+    spacing: 5px;
+    margin: 10px 0 0 0;
+    border: 0;
+    padding: 0;
+}
+
+element {
+    background-color: @bg0;
+    border-radius: 4px;
+    padding: 8px;
+    spacing: 10px;
+}
+
+element-icon {
+    background-color: transparent;
+    size: 24px;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: @fg1;
+    vertical-align: 0.5;
+}
+
+element selected {
+    background-color: @blue;
+    border-radius: 4px;
+}
+
+element selected .element-text {
+    text-color: @bg0;
+}
+
+element selected .element-icon {
+    background-color: transparent;
+}
+
+element-text selected {
+    background-color: @blue;
+    text-color: @bg0;
+}
+
+element-icon selected {
+    background-color: @blue;
+}
+
+inputbar {
+    background-color: @bg1;
+    border: 1px;
+    border-color: @bg2;
+    border-radius: 4px;
+    padding: 10px;
+    spacing: 10px;
+    children: [prompt, entry, case-indicator];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @blue;
+    font: "Noto Sans Bold 11";
+}
+
+entry {
+    background-color: transparent;
+    text-color: @fg0;
+    placeholder: "Search...";
+    placeholder-color: @gray;
+}
+
+case-indicator {
+    background-color: transparent;
+    text-color: @gray;
+    font: "Noto Sans 9";
+}
+
+mode-switcher {
+    background-color: @bg0;
+    border: 0;
+    spacing: 10px;
+    padding: 10px 0 0 0;
+}
+
+button {
+    background-color: @bg1;
+    border-radius: 4px;
+    padding: 8px 16px;
+    text-color: @fg1;
+}
+
+button selected {
+    background-color: @blue;
+    text-color: @bg0;
+}
+
+scrollbar {
+    background-color: @bg1;
+    border-radius: 4px;
+    handle-color: @blue;
+    handle-width: 6px;
+    padding: 0;
+}

@@ -1,0 +1,24 @@
+#!/bin/bash
+# CPU usage script for i3blocks
+# Displays CPU usage percentage
+
+# Get CPU usage
+CPU=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | awk -F. '{print $1}')
+
+# Set color based on usage
+if [ "$CPU" -ge 80 ]; then
+    COLOR="#cc241d"  # Red
+elif [ "$CPU" -ge 50 ]; then
+    COLOR="#d79921"  # Yellow
+else
+    COLOR="#ebdbb2"  # White
+fi
+
+# Output
+echo "<span color=\"$COLOR\">${CPU}%</span>"
+echo "<span color=\"$COLOR\">${CPU}%</span>"
+
+# Click to open system monitor
+case $BLOCK_BUTTON in
+    1) alacritty -e htop & ;;
+esac

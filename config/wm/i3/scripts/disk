@@ -1,0 +1,20 @@
+#!/bin/bash
+# Disk usage script for i3blocks
+# Displays disk usage percentage
+
+DISK="${BLOCK_INSTANCE:-/}"
+USAGE=$(df -h "$DISK" | awk 'NR==2 {print $5}' | tr -d '%')
+SIZE=$(df -h "$DISK" | awk 'NR==2 {print $2}')
+USED=$(df -h "$DISK" | awk 'NR==2 {print $3}')
+
+# Set color based on usage
+if [ "$USAGE" -ge 90 ]; then
+    COLOR="#cc241d"  # Red
+elif [ "$USAGE" -ge 70 ]; then
+    COLOR="#d79921"  # Yellow
+else
+    COLOR="#ebdbb2"  # White
+fi
+
+echo "<span color=\"$COLOR\">${USED}/${SIZE}</span>"
+echo "<span color=\"$COLOR\">${USED}/${SIZE}</span>"
