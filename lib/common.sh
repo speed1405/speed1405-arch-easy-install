@@ -53,29 +53,29 @@ setup_dialog() {
         log_warn "Terminal size is ${cols}x${rows}, recommended is at least 80x24"
     fi
     
-    # Check if dialog is available
-    if command -v dialog &>/dev/null; then
-        DIALOG_CMD="dialog"
-        log_info "Using dialog for UI"
-        return 0
-    fi
-    
-    # Try to install dialog
-    log_info "Dialog not found, attempting to install..."
-    if pacman -Sy --noconfirm dialog &>/dev/null; then
-        DIALOG_CMD="dialog"
-        log_info "Dialog installed successfully"
-        return 0
-    fi
-    
-    # Check for whiptail as fallback
+    # Check if whiptail is available (preferred)
     if command -v whiptail &>/dev/null; then
         DIALOG_CMD="whiptail"
-        log_info "Using whiptail as fallback"
+        log_info "Using whiptail for UI"
         return 0
     fi
     
-    log_error "Neither dialog nor whiptail is available"
+    # Try to install whiptail
+    log_info "Whiptail not found, attempting to install..."
+    if pacman -Sy --noconfirm whiptail &>/dev/null; then
+        DIALOG_CMD="whiptail"
+        log_info "Whiptail installed successfully"
+        return 0
+    fi
+    
+    # Check for dialog as fallback
+    if command -v dialog &>/dev/null; then
+        DIALOG_CMD="dialog"
+        log_info "Using dialog as fallback"
+        return 0
+    fi
+    
+    log_error "Neither whiptail nor dialog is available"
     return 1
 }
 
@@ -86,6 +86,16 @@ dialog_wrapper() {
     shift
     
     if [[ "$DIALOG_CMD" == "whiptail" ]]; then
+        # Filter out --clear option which whiptail doesn't support
+        local args=()
+        while [[ $# -gt 0 ]]; do
+            if [[ "$1" != "--clear" ]]; then
+                args+=("$1")
+            fi
+            shift
+        done
+        set -- "${args[@]}"
+        
         # Convert dialog options to whiptail
         case $cmd in
             --menu)

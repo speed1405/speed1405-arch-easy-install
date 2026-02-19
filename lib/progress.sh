@@ -30,14 +30,25 @@ show_installation_progress() {
     local phase_name=$3
     local percent=$((current_phase * 100 / total_phases))
     
-    dialog_safe --mixedgauge "Installation Progress\n\nPhase $current_phase of $total_phases: $phase_name" 12 70 $percent \
-        "Pre-installation checks" "${current_phase > 0 ? 1 : 0}" \
-        "Disk partitioning" "${current_phase > 1 ? 1 : 0}" \
-        "Base installation" "${current_phase > 2 ? 1 : 0}" \
-        "System configuration" "${current_phase > 3 ? 1 : 0}" \
-        "Bootloader setup" "${current_phase > 4 ? 1 : 0}" \
-        "Desktop installation" "${current_phase > 5 ? 1 : 0}" \
-        "Post-installation" "${current_phase > 6 ? 1 : 0}"
+    # Build status message for all phases
+    local status_msg="Installation Progress\n\n"
+    status_msg+="Phase $current_phase of $total_phases: $phase_name\n\n"
+    
+    local phases=("Pre-installation checks" "Disk partitioning" "Base installation" 
+                  "System configuration" "Bootloader setup" "Desktop installation" "Post-installation")
+    
+    for i in "${!phases[@]}"; do
+        if [[ $i -lt $current_phase ]]; then
+            status_msg+="✓ ${phases[$i]}\n"
+        elif [[ $i -eq $((current_phase - 1)) ]]; then
+            status_msg+"→ ${phases[$i]} (current)\n"
+        else
+            status_msg+"○ ${phases[$i]}\n"
+        fi
+    done
+    
+    # Use simple gauge for whiptail compatibility
+    echo "$percent" | dialog_safe --gauge "$status_msg" 15 70 "$percent"
 }
 
 # Run command with progress animation
@@ -116,6 +127,14 @@ run_pacman_with_progress() {
 show_command_output() {
     local title=$1
     local logfile=$2
+    
+    # whiptail doesn't have tailbox, use textbox instead or just return
+    # For whiptail, we'll show the log at the end instead
+    if [[ "$DIALOG_CMD" == "whiptail" ]]; then
+        # Just return, we'll show the log differently
+        echo ""
+        return 0
+    fi
     
     dialog_safe --title "$title" --tailbox "$logfile" 20 80 &
     local pid=$!
