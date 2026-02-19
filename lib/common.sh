@@ -53,25 +53,39 @@ setup_dialog() {
         log_warn "Terminal size is ${cols}x${rows}, recommended is at least 80x24"
     fi
     
-    # Check if whiptail is available (preferred)
-    if command -v whiptail &>/dev/null; then
+    # Try to install both whiptail and dialog
+    log_info "Checking for dialog tools..."
+    
+    # Check if either is available
+    local has_whiptail=$(command -v whiptail &>/dev/null && echo "yes" || echo "no")
+    local has_dialog=$(command -v dialog &>/dev/null && echo "yes" || echo "no")
+    
+    if [[ "$has_whiptail" == "no" ]] || [[ "$has_dialog" == "no" ]]; then
+        log_info "Installing dialog and whiptail..."
+        pacman -Sy --noconfirm dialog whiptail &>/dev/null || {
+            log_warn "Failed to install both packages, trying individually..."
+            # Try whiptail first
+            pacman -Sy --noconfirm whiptail &>/dev/null || true
+            # Then dialog
+            pacman -Sy --noconfirm dialog &>/dev/null || true
+        }
+    fi
+    
+    # Check again after installation
+    has_whiptail=$(command -v whiptail &>/dev/null && echo "yes" || echo "no")
+    has_dialog=$(command -v dialog &>/dev/null && echo "yes" || echo "no")
+    
+    # Prefer whiptail if available
+    if [[ "$has_whiptail" == "yes" ]]; then
         DIALOG_CMD="whiptail"
         log_info "Using whiptail for UI"
         return 0
     fi
     
-    # Try to install whiptail
-    log_info "Whiptail not found, attempting to install..."
-    if pacman -Sy --noconfirm whiptail &>/dev/null; then
-        DIALOG_CMD="whiptail"
-        log_info "Whiptail installed successfully"
-        return 0
-    fi
-    
-    # Check for dialog as fallback
-    if command -v dialog &>/dev/null; then
+    # Fall back to dialog
+    if [[ "$has_dialog" == "yes" ]]; then
         DIALOG_CMD="dialog"
-        log_info "Using dialog as fallback"
+        log_info "Using dialog for UI"
         return 0
     fi
     
