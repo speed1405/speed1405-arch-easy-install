@@ -16,77 +16,86 @@ BUNDLES=(
     "science"
 )
 
-# Gaming bundle packages
-declare -A BUNDLE_GAMING=(
-    [name]="Gaming"
-    [description]="Steam, Lutris, Wine, and gaming tools"
-    [packages]="steam lutris wine wine-mono wine-gecko gamemode lib32-gamemode discord obs-studio mangohud lib32-mangohud vulkan-icd-loader lib32-vulkan-icd-loader"
-    [aur_packages]="protonup-qt heroic-games-launcher-bin"
-    [post_install]="configure_gaming"
-)
-
-# Productivity bundle packages
-declare -A BUNDLE_PRODUCTIVITY=(
-    [name]="Productivity"
-    [description]="LibreOffice, email clients, note-taking, and office tools"
-    [packages]="libreoffice-fresh thunderbird nextcloud-client evolution geary calibre zim cherrytree pdfarranger gnome-calculator"
-    [aur_packages]="joplin-appimage notion-app-electron"
-    [post_install]="configure_productivity"
-)
-
-# Development bundle packages
-declare -A BUNDLE_DEVELOPMENT=(
-    [name]="Development"
-    [description]="IDEs, editors, compilers, and development tools"
-    [packages]="code vim nano emacs neovim git lazygit github-cli docker docker-compose python python-pip nodejs npm rust go gcc gdb cmake make"
-    [aur_packages]="visual-studio-code-bin jetbrains-toolbox postman-bin insomnia"
-    [post_install]="configure_development"
-)
-
-# Multimedia bundle packages
-declare -A BUNDLE_MULTIMEDIA=(
-    [name]="Multimedia"
-    [description]="Video editing, audio production, and media playback"
-    [packages]="kdenlive shotcut obs-studio audacity ardour lmms vlc mpv ffmpeg handbrake kodi"
-    [aur_packages]="davinci-resolve davinci-resolve-studio"
-    [post_install]="configure_multimedia"
-)
-
-# Creative bundle packages
-declare -A BUNDLE_CREATIVE=(
-    [name]="Creative"
-    [description]="Graphics design, 3D modeling, and digital art"
-    [packages]="gimp inkscape krita blender freecad librecad darktable rawtherapee"
-    [aur_packages]="figma-linux notion-app-electron"
-    [post_install]="configure_creative"
-)
-
-# Streaming bundle packages
-declare -A BUNDLE_STREAMING=(
-    [name]="Streaming"
-    [description]="OBS, streaming tools, and recording software"
-    [packages]="obs-studio simplescreenrecorder v4l2loopback-dkms ffmpeg handbrake"
-    [aur_packages]="streamdeck-ui"
-    [post_install]="configure_streaming"
-)
-
-# Security bundle packages
-declare -A BUNDLE_SECURITY=(
-    [name]="Security"
-    [description]="Security tools, VPN clients, and privacy utilities"
-    [packages]="wireguard-tools openvpn networkmanager-openvpn networkmanager-wireguard tor proxychains-ng ufw gufw keepassxc bitwarden"
-    [aur_packages]="protonvpn-cli windscribe-cli"
-    [post_install]="configure_security"
-)
-
-# Science bundle packages
-declare -A BUNDLE_SCIENCE=(
-    [name]="Science"
-    [description]="Scientific computing, math tools, and data analysis"
-    [packages]="python-matplotlib python-numpy python-pandas python-scipy jupyter-notebook octave r maxima wxmaxima geogebra"
-    [aur_packages]="anaconda"
-    [post_install]="configure_science"
-)
+# Get bundle info function
+get_bundle_info() {
+    local bundle=$1
+    local field=$2
+    
+    case "$bundle" in
+        "gaming")
+            case "$field" in
+                "name") echo "Gaming" ;;
+                "description") echo "Steam, Lutris, Wine, and gaming tools" ;;
+                "packages") echo "steam lutris wine wine-mono wine-gecko gamemode lib32-gamemode discord obs-studio mangohud lib32-mangohud vulkan-icd-loader lib32-vulkan-icd-loader" ;;
+                "aur_packages") echo "protonup-qt heroic-games-launcher-bin" ;;
+                "post_install") echo "configure_gaming" ;;
+            esac
+            ;;
+        "productivity")
+            case "$field" in
+                "name") echo "Productivity" ;;
+                "description") echo "LibreOffice, email clients, note-taking, and office tools" ;;
+                "packages") echo "libreoffice-fresh thunderbird nextcloud-client evolution geary calibre zim cherrytree pdfarranger gnome-calculator" ;;
+                "aur_packages") echo "joplin-appimage notion-app-electron" ;;
+                "post_install") echo "configure_productivity" ;;
+            esac
+            ;;
+        "development")
+            case "$field" in
+                "name") echo "Development" ;;
+                "description") echo "IDEs, editors, compilers, and development tools" ;;
+                "packages") echo "code vim nano emacs neovim git lazygit github-cli docker docker-compose python python-pip nodejs npm rust go gcc gdb cmake make" ;;
+                "aur_packages") echo "visual-studio-code-bin jetbrains-toolbox postman-bin insomnia" ;;
+                "post_install") echo "configure_development" ;;
+            esac
+            ;;
+        "multimedia")
+            case "$field" in
+                "name") echo "Multimedia" ;;
+                "description") echo "Video editing, audio production, and media playback" ;;
+                "packages") echo "kdenlive shotcut obs-studio audacity ardour lmms vlc mpv ffmpeg handbrake kodi" ;;
+                "aur_packages") echo "davinci-resolve davinci-resolve-studio" ;;
+                "post_install") echo "configure_multimedia" ;;
+            esac
+            ;;
+        "creative")
+            case "$field" in
+                "name") echo "Creative" ;;
+                "description") echo "Graphics design, 3D modeling, and digital art" ;;
+                "packages") echo "gimp inkscape krita blender freecad librecad darktable rawtherapee" ;;
+                "aur_packages") echo "figma-linux notion-app-electron" ;;
+                "post_install") echo "configure_creative" ;;
+            esac
+            ;;
+        "streaming")
+            case "$field" in
+                "name") echo "Streaming" ;;
+                "description") echo "OBS, streaming tools, and recording software" ;;
+                "packages") echo "obs-studio simplescreenrecorder v4l2loopback-dkms ffmpeg handbrake" ;;
+                "aur_packages") echo "streamdeck-ui" ;;
+                "post_install") echo "configure_streaming" ;;
+            esac
+            ;;
+        "security")
+            case "$field" in
+                "name") echo "Security" ;;
+                "description") echo "Security tools, VPN clients, and privacy utilities" ;;
+                "packages") echo "wireguard-tools openvpn networkmanager-openvpn networkmanager-wireguard tor proxychains-ng ufw gufw keepassxc bitwarden" ;;
+                "aur_packages") echo "protonvpn-cli windscribe-cli" ;;
+                "post_install") echo "configure_security" ;;
+            esac
+            ;;
+        "science")
+            case "$field" in
+                "name") echo "Science" ;;
+                "description") echo "Scientific computing, math tools, and data analysis" ;;
+                "packages") echo "python-matplotlib python-numpy python-pandas python-scipy jupyter-notebook octave r maxima wxmaxima geogebra" ;;
+                "aur_packages") echo "anaconda" ;;
+                "post_install") echo "configure_science" ;;
+            esac
+            ;;
+    esac
+}
 
 # Show bundle selection dialog
 select_bundles() {
@@ -96,10 +105,8 @@ select_bundles() {
     
     # Build checklist items
     for bundle in "${BUNDLES[@]}"; do
-        local name_var="BUNDLE_${bundle^^}[name]"
-        local desc_var="BUNDLE_${bundle^^}[description]"
-        local name=${!name_var}
-        local desc=${!desc_var}
+        local name=$(get_bundle_info "$bundle" "name")
+        local desc=$(get_bundle_info "$bundle" "description")
         bundle_list+=("$bundle" "$name - $desc" "off")
     done
     
@@ -122,9 +129,9 @@ select_bundles() {
     # Show summary
     local summary="Selected Bundles:\n\n"
     for bundle in "${selected_bundles[@]}"; do
-        local name_var="BUNDLE_${bundle^^}[name]"
-        local desc_var="BUNDLE_${bundle^^}[description]"
-        summary+="• ${!name_var}\n  ${!desc_var}\n\n"
+        local name=$(get_bundle_info "$bundle" "name")
+        local desc=$(get_bundle_info "$bundle" "description")
+        summary+="• $name\n  $desc\n\n"
     done
     
     summary+="\nInstall these bundles?"
@@ -144,16 +151,10 @@ select_bundles() {
 # Install a specific bundle
 install_bundle() {
     local bundle=$1
-    local name_var="BUNDLE_${bundle^^}[name]"
-    local desc_var="BUNDLE_${bundle^^}[description]"
-    local pkg_var="BUNDLE_${bundle^^}[packages]"
-    local aur_var="BUNDLE_${bundle^^}[aur_packages]"
-    local post_var="BUNDLE_${bundle^^}[post_install]"
-    
-    local name=${!name_var}
-    local packages=${!pkg_var}
-    local aur_packages=${!aur_var}
-    local post_install=${!post_var}
+    local name=$(get_bundle_info "$bundle" "name")
+    local packages=$(get_bundle_info "$bundle" "packages")
+    local aur_packages=$(get_bundle_info "$bundle" "aur_packages")
+    local post_install=$(get_bundle_info "$bundle" "post_install")
     
     log_info "Installing bundle: $name"
     
@@ -338,15 +339,10 @@ configure_science() {
 # Show bundle details
 show_bundle_details() {
     local bundle=$1
-    local name_var="BUNDLE_${bundle^^}[name]"
-    local desc_var="BUNDLE_${bundle^^}[description]"
-    local pkg_var="BUNDLE_${bundle^^}[packages]"
-    local aur_var="BUNDLE_${bundle^^}[aur_packages]"
-    
-    local name=${!name_var}
-    local desc=${!desc_var}
-    local packages=${!pkg_var}
-    local aur_packages=${!aur_var}
+    local name=$(get_bundle_info "$bundle" "name")
+    local desc=$(get_bundle_info "$bundle" "description")
+    local packages=$(get_bundle_info "$bundle" "packages")
+    local aur_packages=$(get_bundle_info "$bundle" "aur_packages")
     
     local details="Bundle: $name\n\n"
     details+="Description: $desc\n\n"
@@ -384,9 +380,9 @@ quick_bundle_install() {
     # Show all bundles with descriptions
     local menu_items=()
     for bundle in "${BUNDLES[@]}"; do
-        local name_var="BUNDLE_${bundle^^}[name]"
-        local desc_var="BUNDLE_${bundle^^}[description]"
-        menu_items+=("$bundle" "${!name_var} - ${!desc_var:0:50}")
+        local name=$(get_bundle_info "$bundle" "name")
+        local desc=$(get_bundle_info "$bundle" "description")
+        menu_items+=("$bundle" "$name - ${desc:0:50}")
     done
     
     # Show menu
