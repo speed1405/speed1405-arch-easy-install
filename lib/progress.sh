@@ -41,9 +41,9 @@ show_installation_progress() {
         if [[ $i -lt $current_phase ]]; then
             status_msg+="✓ ${phases[$i]}\n"
         elif [[ $i -eq $((current_phase - 1)) ]]; then
-            status_msg+"→ ${phases[$i]} (current)\n"
+            status_msg+="→ ${phases[$i]} (current)\n"
         else
-            status_msg+"○ ${phases[$i]}\n"
+            status_msg+="○ ${phases[$i]}\n"
         fi
     done
     

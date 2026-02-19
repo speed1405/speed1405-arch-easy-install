@@ -104,7 +104,14 @@ set_config() {
     local value=$2
     
     if command -v jq &>/dev/null; then
-        CONFIG=$(echo "$CONFIG" | jq "$key = \"$value\"")
+        # Check if value is a boolean, number, or null
+        if [[ "$value" == "true" ]] || [[ "$value" == "false" ]] || [[ "$value" == "null" ]]; then
+            CONFIG=$(echo "$CONFIG" | jq "$key = $value")
+        elif [[ "$value" =~ ^[0-9]+$ ]]; then
+            CONFIG=$(echo "$CONFIG" | jq "$key = $value")
+        else
+            CONFIG=$(echo "$CONFIG" | jq "$key = \"$value\"")
+        fi
         save_config
     fi
 }

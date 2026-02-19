@@ -89,7 +89,7 @@ setup_luks() {
         "$partition" -
     
     # Open the encrypted container
-    echo "$password" | cryptsetup open "$partition" "$LUKS_PREFIX$name" -
+    echo "$password" | cryptsetup open "$partition" "$LUKS_PREFIX$name" --key-file -
     
     log_info "LUKS encryption setup complete for $name"
     

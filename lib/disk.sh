@@ -175,7 +175,7 @@ automatic_partitioning() {
     if [[ "$BOOT_MODE" == "UEFI" ]]; then
         summary+="Boot: 512 MB (FAT32 - EFI System Partition)\n"
     else
-        summary+"Boot: 1 MB (BIOS boot partition)\n"
+        summary+="Boot: 1 MB (BIOS boot partition)\n"
     fi
     
     if [[ "$swap_size" -gt 0 ]]; then
@@ -190,9 +190,9 @@ automatic_partitioning() {
         local root_size=$((disk_size_gb / 4))
         [[ $root_size -lt 30 ]] && root_size=30
         summary+="Root ( / ): ${root_size} GB ($filesystem)\n"
-        summary+"Home ( /home ): Remaining space ($filesystem)\n"
+        summary+="Home ( /home ): Remaining space ($filesystem)\n"
     else
-        summary+"Root ( / ): Remaining space ($filesystem)\n"
+        summary+="Root ( / ): Remaining space ($filesystem)\n"
     fi
     
     summary+="\n⚠ This will DESTROY ALL DATA on $INSTALL_DISK!"

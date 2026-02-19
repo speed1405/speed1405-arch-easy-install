@@ -843,7 +843,7 @@ super + f
     bspc node -t fullscreen
 
 # Focus window
-defaults.super + {h,j,k,l}
+super + {h,j,k,l}
     bspc node -f {west,south,north,east}
 
 # Move window

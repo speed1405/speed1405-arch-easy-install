@@ -56,162 +56,137 @@ setup_dialog() {
     # Try to install both whiptail and dialog
     log_info "Checking for dialog tools..."
     
-    # Check if either is available
-    local has_whiptail=$(command -v whiptail &>/dev/null && echo "yes" || echo "no")
-    local has_dialog=$(command -v dialog &>/dev/null && echo "yes" || echo "no")
-    
-    if [[ "$has_whiptail" == "no" ]] || [[ "$has_dialog" == "no" ]]; then
-        log_info "Installing dialog and whiptail..."
-        pacman -Sy --noconfirm dialog whiptail &>/dev/null || {
-            log_warn "Failed to install both packages, trying individually..."
-            # Try whiptail first
-            pacman -Sy --noconfirm whiptail &>/dev/null || true
-            # Then dialog
-            pacman -Sy --noconfirm dialog &>/dev/null || true
-        }
-    fi
-    
-    # Check again after installation
-    has_whiptail=$(command -v whiptail &>/dev/null && echo "yes" || echo "no")
-    has_dialog=$(command -v dialog &>/dev/null && echo "yes" || echo "no")
-    
-    # Prefer whiptail if available
-    if [[ "$has_whiptail" == "yes" ]]; then
+    # Check if whiptail is available
+    if command -v whiptail &>/dev/null; then
         DIALOG_CMD="whiptail"
-        log_info "Using whiptail for UI"
+        export DIALOG_CMD
+        log_info "Using whiptail for UI (already installed)"
         return 0
     fi
     
-    # Fall back to dialog
-    if [[ "$has_dialog" == "yes" ]]; then
+    # Check if dialog is available
+    if command -v dialog &>/dev/null; then
         DIALOG_CMD="dialog"
-        log_info "Using dialog for UI"
+        export DIALOG_CMD
+        log_info "Using dialog for UI (already installed)"
         return 0
     fi
     
-    log_error "Neither whiptail nor dialog is available"
+    # Neither is available, try to install
+    log_info "Installing whiptail and dialog..."
+    
+    # Update package database
+    if ! pacman -Sy &>/dev/null; then
+        log_warn "Failed to sync package database"
+    fi
+    
+    # Install whiptail first (preferred)
+    if pacman -S --noconfirm whiptail &>/dev/null; then
+        if command -v whiptail &>/dev/null; then
+            DIALOG_CMD="whiptail"
+            export DIALOG_CMD
+            log_info "Using whiptail for UI (installed)"
+            return 0
+        fi
+    fi
+    
+    # Try dialog as fallback
+    if pacman -S --noconfirm dialog &>/dev/null; then
+        if command -v dialog &>/dev/null; then
+            DIALOG_CMD="dialog"
+            export DIALOG_CMD
+            log_info "Using dialog for UI (installed)"
+            return 0
+        fi
+    fi
+    
+    log_error "Neither whiptail nor dialog could be installed"
+    log_error "Falling back to text-based interface"
+    DIALOG_CMD=""
+    export DIALOG_CMD
     return 1
 }
 
 # Wrapper for dialog/whiptail commands
-# Usage: dialog_wrapper <command> [args...]
+# Usage: dialog_wrapper [options] --<command> [args...]
 dialog_wrapper() {
-    local cmd=$1
-    shift
-    
     if [[ "$DIALOG_CMD" == "whiptail" ]]; then
-        # Filter out --clear option which whiptail doesn't support
+        # Build whiptail command, filtering unsupported options
         local args=()
+        local i=0
         while [[ $# -gt 0 ]]; do
-            if [[ "$1" != "--clear" ]]; then
-                args+=("$1")
-            fi
-            shift
-        done
-        set -- "${args[@]}"
-        
-        # Convert dialog options to whiptail
-        case $cmd in
-            --menu)
-                # whiptail --menu text height width menu-height [tag item]...
-                local title="$1"
-                local text="$2"
-                local height="$3"
-                local width="$4"
-                local menu_height="$5"
-                shift 5
-                # Build menu items differently for whiptail
-                local items=()
-                while [[ $# -gt 0 ]]; do
-                    items+=("$1" "$2")
+            case "$1" in
+                --clear)
+                    # Skip - not supported by whiptail
+                    shift
+                    ;;
+                --title)
+                    args+=("--title" "$2")
                     shift 2
-                done
-                whiptail --title "$title" --menu "$text" "$height" "$width" "$menu_height" "${items[@]}" 3>&1 1>&2 2>&3
-                ;;
-            --msgbox)
-                local text="$1"
-                local height="$2"
-                local width="$3"
-                whiptail --msgbox "$text" "$height" "$width" 3>&1 1>&2 2>&3
-                ;;
-            --yesno)
-                local text="$1"
-                local height="$2"
-                local width="$3"
-                whiptail --yesno "$text" "$height" "$width" 3>&1 1>&2 2>&3
-                ;;
-            --inputbox)
-                local text="$1"
-                local height="$2"
-                local width="$3"
-                local init="${4:-}"
-                whiptail --inputbox "$text" "$height" "$width" "$init" 3>&1 1>&2 2>&3
-                ;;
-            --passwordbox)
-                local text="$1"
-                local height="$2"
-                local width="$3"
-                whiptail --passwordbox "$text" "$height" "$width" 3>&1 1>&2 2>&3
-                ;;
-            --infobox)
-                local text="$1"
-                local height="$2"
-                local width="$3"
-                whiptail --infobox "$text" "$height" "$width"
-                ;;
-            --gauge)
-                local text="$1"
-                local height="$2"
-                local width="$3"
-                local percent="${4:-0}"
-                # whiptail doesn't have a direct gauge, use infobox with progress
-                whiptail --gauge "$text" "$height" "$width" "$percent" 3>&1 1>&2 2>&3
-                ;;
-            --fselect)
-                # whiptail doesn't have fselect, use inputbox as fallback
-                local init="$1"
-                local height="$2"
-                local width="$3"
-                whiptail --inputbox "Enter file path:" "$height" "$width" "$init" 3>&1 1>&2 2>&3
-                ;;
-            --checklist)
-                local title="$1"
-                local text="$2"
-                local height="$3"
-                local width="$4"
-                local list_height="$5"
-                shift 5
-                # Build checklist items for whiptail
-                local items=()
-                while [[ $# -gt 0 ]]; do
-                    local tag="$1"
-                    local desc="$2"
-                    local status="$3"
-                    # whiptail uses ON/OFF instead of on/off
-                    if [[ "$status" == "on" ]]; then
-                        status="ON"
-                    else
-                        status="OFF"
-                    fi
-                    items+=("$tag" "$desc" "$status")
-                    shift 3
-                done
-                whiptail --title "$title" --checklist "$text" "$height" "$width" "$list_height" "${items[@]}" 3>&1 1>&2 2>&3
-                ;;
-            --textbox)
-                local file="$1"
-                local height="$2"
-                local width="$3"
-                whiptail --textbox "$file" "$height" "$width" 3>&1 1>&2 2>&3
-                ;;
-            *)
-                # For any other commands, try to pass through
-                whiptail "$cmd" "$@" 3>&1 1>&2 2>&3
-                ;;
-        esac
+                    ;;
+                --backtitle)
+                    # Skip - not supported by whiptail  
+                    shift 2
+                    ;;
+                --menu)
+                    # whiptail --menu uses same syntax as dialog
+                    args+=("--menu" "$2" "$3" "$4" "$5")
+                    shift 5
+                    # Add remaining menu items
+                    while [[ $# -gt 0 ]]; do
+                        args+=("$1" "$2")
+                        shift 2
+                    done
+                    ;;
+                --checklist)
+                    # Convert on/off to ON/OFF for whiptail
+                    args+=("--checklist" "$2" "$3" "$4" "$5")
+                    shift 5
+                    while [[ $# -gt 0 ]]; do
+                        local tag="$1" desc="$2" status="$3"
+                        [[ "$status" == "on" ]] && status="ON"
+                        [[ "$status" == "off" ]] && status="OFF"
+                        args+=("$tag" "$desc" "$status")
+                        shift 3
+                    done
+                    ;;
+                --radiolist)
+                    args+=("--radiolist" "$2" "$3" "$4" "$5")
+                    shift 5
+                    while [[ $# -gt 0 ]]; do
+                        local tag="$1" desc="$2" status="$3"
+                        [[ "$status" == "on" ]] && status="ON"
+                        [[ "$status" == "off" ]] && status="OFF"
+                        args+=("$tag" "$desc" "$status")
+                        shift 3
+                    done
+                    ;;
+                --msgbox|--yesno|--infobox|--inputbox|--passwordbox)
+                    args+=("$1" "$2" "$3" "$4")
+                    shift 4
+                    ;;
+                --gauge)
+                    args+=("--gauge" "$2" "$3" "$4" "$5")
+                    shift 5
+                    ;;
+                --textbox)
+                    args+=("--textbox" "$2" "$3" "$4")
+                    shift 4
+                    ;;
+                --fselect)
+                    # whiptail doesn't have fselect, use inputbox
+                    args+=("--inputbox" "Enter file path:" "$3" "$4" "$2")
+                    shift 4
+                    ;;
+                *)
+                    args+=("$1")
+                    shift
+                    ;;
+            esac
+        done
+        whiptail "${args[@]}" 3>&1 1>&2 2>&3
     else
-        # Use standard dialog
-        dialog "$cmd" "$@" 3>&1 1>&2 2>&3
+        dialog "$@" 3>&1 1>&2 2>&3
     fi
 }
 
@@ -291,56 +266,91 @@ dialog_safe() {
     local result
     local exit_code
     
+    # Filter out --clear option (not supported by whiptail, ignored by dialog)
+    local args=()
+    while [[ $# -gt 0 ]]; do
+        if [[ "$1" != "--clear" ]]; then
+            args+=("$1")
+        fi
+        shift
+    done
+    set -- "${args[@]}"
+    
     if [[ -z "$DIALOG_CMD" ]]; then
-        # Fallback to text mode
-        case $1 in
-            --menu)
-                shift
-                local title="$1"
-                local text="$2"
-                shift 3  # skip height, width
-                local menu_height="$1"
-                shift
-                text_menu "$title" "$text" "$@"
-                return $?
-                ;;
-            --inputbox)
-                shift
-                local text="$1"
-                shift 2  # skip height, width
-                local init="$1"
-                text_input "$text" "$init"
-                return 0
-                ;;
-            --yesno)
-                shift
-                local text="$1"
-                text_yesno "$text"
-                return $?
-                ;;
-            --msgbox)
-                shift
-                local text="$1"
-                text_msg "$text"
-                return 0
-                ;;
-            *)
-                log_warn "Dialog command '$1' not supported in text mode"
-                return 1
-                ;;
-        esac
+        # Fallback to text mode - parse dialog-style arguments
+        local title=""
+        local text=""
+        local height=""
+        local width=""
+        local menu_height=""
+        
+        # Parse options
+        while [[ $# -gt 0 ]]; do
+            case "$1" in
+                --title)
+                    title="$2"
+                    shift 2
+                    ;;
+                --backtitle)
+                    shift 2
+                    ;;
+                --menu)
+                    shift
+                    text="$1"
+                    height="$2"
+                    width="$3"
+                    menu_height="$4"
+                    shift 4
+                    # Remaining argsuiments are menu items
+                    text_menu "$title" "$text" "$@"
+                    return $?
+                    ;;
+                --msgbox)
+                    shift
+                    text="$1"
+                    text_msg "$text"
+                    return 0
+                    ;;
+                --yesno)
+                    shift
+                    text="$1"
+                    text_yesno "$text"
+                    return $?
+                    ;;
+                --inputbox)
+                    shift
+                    text="$1"
+                    shift 2
+                    local init="$1"
+                    text_input "$text" "$init"
+                    return 0
+                    ;;
+                *)
+                    shift
+                    ;;
+            esac
+        done
+        
+        log_warn "Dialog command not recognized in text mode"
+        return 1
     fi
     
     # Use dialog/whiptail directly without capturing output for simple dialogs
     case $1 in
-        --msgbox|--yesno|--infobox|--gauge)
-            # These don't need output capture
-            dialog_wrapper "$@" 2>/dev/null
+        --msgbox|--yesno|--infobox)
+            dialog_wrapper "$@"
             return $?
             ;;
+        --gauge)
+            result=$(dialog_wrapper "$@")
+            exit_code=$?
+            if [[ $exit_code -eq 0 ]]; then
+                echo "$result"
+            fi
+            return $exit_code
+            ;;
         *)
-            # These need output capture
-            result=$(dialog_wrapper "$@" 2>/dev/null)
+            result=$(dialog_wrapper "$@")
             exit_code=$?
             if [[ $exit_code -eq 0 ]]; then
                 echo "$result"

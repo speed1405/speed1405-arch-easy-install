@@ -186,7 +186,9 @@ select_manual_mirror() {
     fi
     
     # Copy to installation
-    cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+    if [[ "$(get_config '.options.dry_run')" != "true" ]]; then
+        cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+    fi
     
     log_info "Mirrorlist updated for region: $region"
 }
