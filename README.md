@@ -51,7 +51,7 @@ iwctl station wlan0 connect "Your_SSID"
 dhcpcd
 
 # Download the installer
-curl -O https://raw.githubusercontent.com/yourusername/arch-easy-install/main/arch-easy-install.sh
+curl -O https://github.com/speed1405/speed1405-arch-easy-install/raw/refs/heads/main/arch-easy-install.sh
 chmod +x arch-easy-install.sh
 
 # Run the installer
